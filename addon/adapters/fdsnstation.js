@@ -1,5 +1,5 @@
 import JSONAPIAdapter from 'ember-data/adapters/json-api';
-import seisplotjs from 'npm:seisplotjs';
+import seisplotjs from './lib';
 
 export default JSONAPIAdapter.extend({
   defaultHost: 'http://service.iris.edu',
@@ -14,11 +14,11 @@ export default JSONAPIAdapter.extend({
     let idDate = id.split("_")[1];
 
     let splitId = id.split(".");
-    let stationQuery = new seisplot.fdsnstation.StationQuery()
+    let stationQuery = new seisplotjs.fdsnstation.StationQuery()
       .protocol(protocol)
       .networkCode(splitId[0])
       .startTime(idDate);
-    if (type === seisplotjs.fdsnstation.LEVEL_NETWORK)
+    if (type === seisplotjs.fdsnstation.LEVEL_NETWORK) {
       promise = stationQuery.queryNetworks();
     } else if (type === seisplotjs.fdsnstation.LEVEL_STATION) {
       stationQuery.stationCode(splitId[1]);
