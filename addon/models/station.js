@@ -1,4 +1,5 @@
 import Model from 'ember-data/model';
+import DS from 'ember-data';
 
 export default Model.extend({
   stationCode: DS.attr('string'),
@@ -11,7 +12,7 @@ export default Model.extend({
   latitude: DS.attr('number'),
   longitude: DS.attr('number'),
   elevation: DS.attr('number'),
-  
+
   latitudeFormatted:  function() {
      return this.get('latitude').toFixed(2);
   }.property('latitude'),
