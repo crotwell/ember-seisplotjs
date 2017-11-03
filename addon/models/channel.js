@@ -6,8 +6,6 @@ export default Model.extend({
   channelCode: DS.attr('string'),
   locationCode: DS.attr('string'),
   station: DS.belongsTo('network', {async: true}),
-  instrumentSensitivity: DS.attr(),
-//  instrumentSensitivity: DS.belongsTo('instrument-sensitivity'),
   name: DS.attr('string'),
   description: DS.attr('string'),
   startTime: DS.attr('date'),
@@ -20,6 +18,9 @@ export default Model.extend({
   dip: DS.attr('number'),
   sampleRate: DS.attr('number'),
   restrictedStatus: DS.attr('string'),
+  instrumentSensitivity: DS.attr(),
+  response: DS.belongsTo('response'),
+
   latitudeFormatted:  function() {
      return this.get('latitude').toFixed(2);
   }.property('latitude'),
@@ -34,5 +35,8 @@ export default Model.extend({
   }.property('station.stationCode',
              'station.network.networkCode',
              'locationCode',
-             'channelCode')
+             'channelCode'),
+  createId: function() {
+    return this.codes()+"_"+this.startTime().toISOString();
+  }.property('codes', 'startTime')
 });

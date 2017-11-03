@@ -31,5 +31,8 @@ console.log(' isTempNet : '+first);
     } else {
       return this.get('endTime').toISOString();
     }
-  })
+  }),
+  createId: function() {
+    return this.codes()+"_"+this.startTime().toISOString();
+  }.property('codes', 'startTime')
 });
