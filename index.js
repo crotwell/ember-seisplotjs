@@ -2,5 +2,9 @@
 'use strict';
 
 module.exports = {
-  name: 'ember-seisplotjs'
+  name: 'ember-seisplotjs',
+
+  isDevelopingAddon() {
+    return true;
+  }
 };
