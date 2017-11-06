@@ -35,8 +35,5 @@ export default Model.extend({
   }.property('station.stationCode',
              'station.network.networkCode',
              'locationCode',
-             'channelCode'),
-  createId: function() {
-    return this.codes()+"_"+this.startTime().toISOString();
-  }.property('codes', 'startTime')
+             'channelCode')
 });

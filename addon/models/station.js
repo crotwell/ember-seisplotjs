@@ -21,8 +21,5 @@ export default Model.extend({
   }.property('longitude'),
   codes: function() {
     return this.get('network').get('networkCode')+"."+this.get('stationCode');
-  }.property('stationCode', 'network.networkCode'),
-  createId: function() {
-    return this.codes()+"_"+this.startTime().toISOString();
-  }.property('codes', 'startTime')
+  }.property('stationCode', 'network.networkCode')
 });
