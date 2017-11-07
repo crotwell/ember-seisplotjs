@@ -11,13 +11,17 @@ export default DS.Adapter.extend({
     const modelName = type.modelName;
     console.log("FDSNStation adapter findRecord modelName: "+modelName+" id: "+id);
     var protocol = this.findProtocol();
-    let idDate = id.split("_")[1];
+    let codes_date = id.split("_");
+    let idDate = codes_date[1];
     let promise;
-    let splitId = id.split(".");
+    let splitId = codes_date[0].split(".");
     let stationQuery = new seisplotjs.fdsnstation.StationQuery()
       .protocol(protocol)
-      .networkCode(splitId[0])
-      .startTime(idDate);
+      .networkCode(splitId[0]);
+    if (idDate) {
+      // network level for perm nets may not have date
+      stationQuery.startTime(idDate);
+    }
     if (modelName === seisplotjs.fdsnstation.LEVEL_NETWORK) {
       promise = stationQuery.queryNetworks();
     } else if (modelName === seisplotjs.fdsnstation.LEVEL_STATION) {
@@ -48,11 +52,11 @@ export default DS.Adapter.extend({
   },
   query(store, type, query) {
     console.log("Station adapter query");
-    throw new Error("No impl findMany");
+    throw new Error("No impl query");
   },
   findAll(store, type, sinceToken) {
     console.log("Station adapter findAll");
-    throw new Error("No impl findMany");},
+    throw new Error("No impl findAll");},
   findMany(store, type, ids, snapshots) {
     console.log("Station adapter findMany");
     throw new Error("No impl findMany");
@@ -69,6 +73,15 @@ export default DS.Adapter.extend({
         .startTime(snapshot.record.get('startTime'));
         console.log("findHasMany url: "+stationQuery.formURL(seisplotjs.fdsnstation.LEVEL_STATION))
       return stationQuery.queryStations();
+    } else if (snapshot.modelName === 'station' && relationship.type === 'channel') {
+      console.log('findHasMany: '+snapshot.record.get('codes'));
+      let stationQuery = new seisplotjs.fdsnstation.StationQuery()
+        .protocol(this.findProtocol())
+        .networkCode(snapshot.record.get('networkCode'))
+        .stationCode(snapshot.record.get('stationCode'))
+        .startTime(snapshot.record.get('startTime'));
+        console.log("findHasMany url: "+stationQuery.formURL(seisplotjs.fdsnstation.LEVEL_CHANNEL))
+      return stationQuery.queryChannels();
     } else {
       throw new Error("Unknown model and relationship: "+snapshot.modelName+" "+relationship.type+" "+link);
     }

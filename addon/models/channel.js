@@ -5,7 +5,7 @@ export default Model.extend({
 
   channelCode: DS.attr('string'),
   locationCode: DS.attr('string'),
-  station: DS.belongsTo('network', {async: true}),
+  station: DS.belongsTo('station', {async: true}),
   name: DS.attr('string'),
   description: DS.attr('string'),
   startTime: DS.attr('date'),
@@ -27,13 +27,19 @@ export default Model.extend({
   longitudeFormatted:  function() {
      return this.get('longitude').toFixed(2);
   }.property('longitude'),
+  networkCode: function() {
+    return this.get('station').get('networkCode');
+  }.property('station'),
+  stationCode: function() {
+    return this.get('station').get('stationCode');
+  }.property('station'),
   codes: function() {
-    return this.get('station').get('network').get('networkCode')
-      +"."+this.get('station').get('stationCode')
+    return this.get('networkCode')
+      +"."+this.get('stationCode')
       +"."+this.get('locationCode')
       +"."+this.get('channelCode');
-  }.property('station.stationCode',
-             'station.network.networkCode',
+  }.property('stationCode',
+             'networkCode',
              'locationCode',
              'channelCode')
 });

@@ -18,6 +18,16 @@ for (const x of out) {
   console.log(x.type+"   id "+x.id);
 }
         return { data: out };
+      } else if (primaryModelClass.modelName === 'channel') {
+        let net = payload[0];
+        let sta = net.stations()[0];
+        let out = [];
+        for (const c of sta.channels()) {
+          console.log("normalizeResponse push channel "+c.codes());
+          out.push(this.normalizeChannel(c).data);
+        }
+        console.log("finish normalizeResponse "+out.length+" "+requestType+" "+primaryModelClass.modelName);
+        return { data: out };
       } else {
         throw new Error("unknown modelName for normalizeResponse findHasMany "+primaryModelClass.modelName);
       }
@@ -135,9 +145,11 @@ for (const x of out) {
         included.push(this.normalizeChannel(c).data);
       }
     }
-    return { data: data, included: included };
+    const out = { data: data, included: included };
+    return out;
   },
   normalizeChannel(chan) {
+    console.log("normalizeChannel "+chan.codes()+" id: "+this.createChannelId(chan));
     const data = {
       id: this.createChannelId(chan),
       type: 'channel',
@@ -167,6 +179,10 @@ for (const x of out) {
           }
         },
         response: {
+          data: {
+            type: 'response',
+            id: this.createChannelId(chan)
+          },
           links: {
             related: this.CHAN_RESPONSE_URL
           }
@@ -226,7 +242,8 @@ for (const x of out) {
       +"_"+spjsStation.startDate().toISOString();
   },
   createChannelId: function(spjsChannel) {
-    return this.createStationId(spjsChannel.station())
+    return this.createNetworkId(spjsChannel.station().network())
+      +"."+spjsChannel.station().stationCode()
       +"."+spjsChannel.locationCode()
       +"."+spjsChannel.channelCode()
       +"_"+spjsChannel.startDate().toISOString();

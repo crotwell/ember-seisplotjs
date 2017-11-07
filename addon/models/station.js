@@ -19,7 +19,10 @@ export default Model.extend({
   longitudeFormatted:  function() {
      return this.get('longitude').toFixed(2);
   }.property('longitude'),
+  networkCode: function() {
+    return this.get('network').get('networkCode');
+  }.property('network'),
   codes: function() {
-    return this.get('network').get('networkCode')+"."+this.get('stationCode');
-  }.property('stationCode', 'network.networkCode')
+    return this.get('networkCode')+"."+this.get('stationCode');
+  }.property('stationCode', 'networkCode')
 });
