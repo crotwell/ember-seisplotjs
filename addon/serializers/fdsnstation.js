@@ -14,9 +14,6 @@ export default JSONAPISerializer.extend({
           out.push(this.normalizeStation(st).data);
         }
         console.log("finish normalizeResponse "+out.length+" "+requestType+" "+primaryModelClass.modelName);
-for (const x of out) {
-  console.log(x.type+"   id "+x.id);
-}
         return { data: out };
       } else if (primaryModelClass.modelName === 'channel') {
         let net = payload[0];
