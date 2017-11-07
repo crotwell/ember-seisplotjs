@@ -21,6 +21,9 @@ export default Model.extend({
   instrumentSensitivity: DS.attr(),
   response: DS.belongsTo('response'),
 
+  isActive: function() {
+    return this.get('endTime').getTime() > Date.now();
+  }.property('endTime'),
   latitudeFormatted:  function() {
      return this.get('latitude').toFixed(2);
   }.property('latitude'),

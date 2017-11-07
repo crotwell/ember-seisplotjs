@@ -13,6 +13,9 @@ export default Model.extend({
   longitude: DS.attr('number'),
   elevation: DS.attr('number'),
 
+  isActive: function() {
+    return this.get('endTime').getTime() > Date.now();
+  }.property('endTime'),
   latitudeFormatted:  function() {
      return this.get('latitude').toFixed(2);
   }.property('latitude'),
