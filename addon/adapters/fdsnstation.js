@@ -27,7 +27,7 @@ export default DS.Adapter.extend({
     } else if (modelName === seisplotjs.fdsnstation.LEVEL_STATION) {
       stationQuery.stationCode(splitId[1]);
       promise = stationQuery.queryStations();
-    } else if (modelName === seisplotjs.fdsnstation.LEVEL_CHANEL) {
+    } else if (modelName === seisplotjs.fdsnstation.LEVEL_CHANNEL) {
       stationQuery.stationCode(splitId[1])
         .locationCode(splitId[2])
         .channelCode(splitId[3]);
