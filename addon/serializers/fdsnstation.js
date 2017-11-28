@@ -55,7 +55,9 @@ export default JSONAPISerializer.extend({
       if ( ! net.stations() || net.stations().length != 1) {
         throw new Error("unable to normalize station, not single station: "+net.stations());
       }
-      return this.normalizeStation(net.stations()[0]);
+      let out = this.normalizeStation(net.stations()[0]);
+      out.included.push(this.normalizeNetwork(net).data);
+      return out;
     } else if (modelClass.modelName === "channel") {
       if ( ! net.stations() || net.stations().length != 1) {
         throw new Error("unable to normalize channel, not single station: "+net.stations());
@@ -64,7 +66,10 @@ export default JSONAPISerializer.extend({
       if ( ! sta || sta.channels().length != 1) {
         throw new Error("unable to normalize channel, not single channel: "+sta.channels());
       }
-      return this.normalizeChannel(sta.channels()[0]);
+      let out = this.normalizeChannel(sta.channels()[0]);
+      out.included.push(this.normalizeNetwork(net).data);
+      out.included.push(this.normalizeStation(sta).data);
+      return out;
     } else if (modelClass.modelName === "response") {
       if ( ! net.stations() || net.stations().length != 1) {
         throw new Error("unable to normalize channel, not single station: "+net.stations());
@@ -73,7 +78,11 @@ export default JSONAPISerializer.extend({
       if ( ! sta || sta.channels().length != 1) {
         throw new Error("unable to normalize channel, not single channel: "+sta.channels());
       }
-      return this.normalizeChannelResponse(sta.channels()[0].response(), sta.channels()[0].createId());
+      let out = this.normalizeChannelResponse(sta.channels()[0].response(), sta.channels()[0].createId());
+      out.included.push(this.normalizeNetwork(net).data);
+      out.included.push(this.normalizeStation(sta).data);
+      out.included.push(this.normalizeChannel(sta.channels()[0]).data);
+      return out;
     }
     throw new Error("fdsnstation serializer unknown type to normalize: "+resourceHash.id
       +" "+modelClass.modelName);
