@@ -1,4 +1,6 @@
 import Component from '@ember/component';
+import {observer} from '@ember/object';
+import RSVP from 'rsvp';
 import layout from '../templates/components/seismogram-display';
 import { inject as service } from '@ember/service';
 import { computed } from "@ember/object";
@@ -65,7 +67,6 @@ console.log("updat4Graph: "+this.get('channel'));
         //return this.drawPhases();
       });
     } else if (this.get('channel')) {
-      let c = this.get('channel');
       console.log("got channel for seis display");
       const ds = fdsnDataSelect;
       //const ds = this.get('fdsnDataSelect');
@@ -77,9 +78,9 @@ console.log("updat4Graph: "+this.get('channel'));
   },
   rotateToGCP(seismogramList) {
     throw new Error("not yet impl");
-    for (wf of seismogramList) {
+    //for (wf of seismogramList) {
       //let nsl = wf.
-    }
+    //}
   },
   appendWaveform: function(miniseedList) {
     let that = this;
@@ -129,7 +130,7 @@ console.log("updat4Graph: "+this.get('channel'));
   },
   drawPhases: function() {
       let that = this;
-      return Ember.RSVP.hash({
+      return RSVP.hash({
         seisChartListHash: this.get('seischartList'),
         phaseHash: this.get('phases'),
         quakeHash: that.get('quake'),
@@ -183,16 +184,16 @@ console.log("updat4Graph: "+this.get('channel'));
           });
       });
     },
-    phasesObserver: Ember.observer('phases', function() {
+    phasesObserver: observer('phases', function() {
       this.drawPhases();
     }),
-    overlayObserver: Ember.observer('isOverlay', function() {
+    overlayObserver: observer('isOverlay', function() {
       this.updateGraph();
     }),
-    rotateObserver: Ember.observer('isRotateGCP', function() {
+    rotateObserver: observer('isRotateGCP', function() {
       this.updateGraph();
     }),
-    seismogramListObserver: Ember.observer('seismogramList', function() {
+    seismogramListObserver: observer('seismogramList', function() {
       this.updateGraph();
     }),
     notifyScaleChange(xScale) {
