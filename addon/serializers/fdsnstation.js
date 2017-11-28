@@ -11,10 +11,12 @@ export default JSONAPISerializer.extend({
         let out = [];
         for (const st of net.stations()) {
           console.log("normalizeResponse push station "+st.codes());
-          out.push(this.normalizeStation(st).data);
+          const normSta = this.normalizeStation(st);
+          out.push(normSta.data);
         }
+        let included = [ this.normalizeNetwork(net).data ];
         console.log("finish normalizeResponse "+out.length+" "+requestType+" "+primaryModelClass.modelName);
-        return { data: out };
+        return { data: out, included: included };
       } else if (primaryModelClass.modelName === 'channel') {
         let net = payload[0];
         let sta = net.stations()[0];
@@ -23,8 +25,9 @@ export default JSONAPISerializer.extend({
           console.log("normalizeResponse push channel "+c.codes());
           out.push(this.normalizeChannel(c).data);
         }
+        let included = [ this.normalizeNetwork(net).data, this.normalizeStation(sta).data];
         console.log("finish normalizeResponse "+out.length+" "+requestType+" "+primaryModelClass.modelName);
-        return { data: out };
+        return { data: out, included: included };
       } else {
         throw new Error("unknown modelName for normalizeResponse findHasMany "+primaryModelClass.modelName);
       }
