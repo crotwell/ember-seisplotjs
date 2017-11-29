@@ -3,6 +3,8 @@
 Wrapping [seisplotjs](https://github.com/crotwell/seisplotjs) for use in
 [Ember](http://emberjs.com).
 
+`ember install ember-seisplotjs`
+
 
 This README outlines the details of collaborating on this Ember addon.
 
