@@ -8,6 +8,6 @@ export default Transform.extend({
   },
 
   serialize(deserialized) {
-    return deserialized ? deserialized.toJSON() : null;
+    return deserialized ? deserialized.toISOString() : null;
   }
 });
