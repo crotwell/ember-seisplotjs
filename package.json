@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "description": "The default blueprint for ember-cli addons.",
   "keywords": [
-    "ember-addon"
+    "ember-addon",
+    "seisplotjs",
+    "seismology",
+    "earthquake"
   ],
   "license": "MIT",
   "author": "",
