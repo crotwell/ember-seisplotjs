@@ -14,7 +14,7 @@ export default Model.extend({
   elevation: DS.attr('number'),
 
   isActive: function() {
-    return this.get('endTime').getTime() > Date.now();
+    return ! this.get('endTime').isBefore(Date.now());
   }.property('endTime'),
   latitudeFormatted:  function() {
      return this.get('latitude').toFixed(2);

@@ -22,7 +22,7 @@ export default Model.extend({
   response: DS.belongsTo('response'),
 
   isActive: function() {
-    return this.get('endTime').getTime() > Date.now();
+    return ! this.get('endTime').isBefore(Date.now());
   }.property('endTime'),
   latitudeFormatted:  function() {
      return this.get('latitude').toFixed(2);

@@ -1,6 +1,7 @@
 import DS from 'ember-data';
 import fdsnstationSerializer from '../serializers/fdsnstation';
 import seisplotjs from 'ember-seisplotjs';
+import moment from 'moment';
 
 export default DS.Adapter.extend({
   defaultHost: 'http://service.iris.edu',
@@ -12,15 +13,17 @@ export default DS.Adapter.extend({
     console.log("FDSNStation adapter findRecord modelName: "+modelName+" id: "+id);
     var protocol = this.findProtocol();
     let codes_date = id.split("_");
-    let idDate = codes_date[1];
+    let idDateStr = codes_date[1];
     let promise;
     let splitId = codes_date[0].split(".");
     let stationQuery = new seisplotjs.fdsnstation.StationQuery()
       .protocol(protocol)
       .networkCode(splitId[0]);
-    if (idDate) {
+    if (idDateStr) {
       // network level for perm nets may not have date
+      let idDate = moment.utc(idDateStr);
       stationQuery.startTime(idDate);
+      stationQuery.startBefore(idDate.add(1, 'second'));
     }
     if (modelName === seisplotjs.fdsnstation.LEVEL_NETWORK) {
       promise = stationQuery.queryNetworks();

@@ -10,7 +10,7 @@ export default Model.extend({
   stations: DS.hasMany('station', { async: true }),
 
   isActive: function() {
-    return this.get('endTime').getTime() > Date.now();
+    return ! this.get('endTime').isBefore(Date.now());
   }.property('endTime'),
   isTempNet: computed('networkCode', function() {
     var first = this.get('networkCode').charAt(0);

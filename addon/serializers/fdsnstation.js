@@ -1,5 +1,9 @@
 import JSONAPISerializer from 'ember-data/serializers/json-api';
 
+import seisplotjs from 'ember-seisplotjs';
+
+const moment = seisplotjs.model.moment;
+
 export default JSONAPISerializer.extend({
   normalizeResponse(store, primaryModelClass, payload, id, requestType) {
     console.log("fdsnstation serializer normalizeResponse "+requestType+" "+primaryModelClass.modelName);
@@ -53,18 +57,18 @@ export default JSONAPISerializer.extend({
       return this.normalizeNetwork(net);
     } else if (modelClass.modelName === "station") {
       if ( ! net.stations() || net.stations().length != 1) {
-        throw new Error("unable to normalize station, not single station: "+net.stations());
+        throw new Error("unable to normalize station, not single station: "+net.stations().length);
       }
       let out = this.normalizeStation(net.stations()[0]);
       out.included.push(this.normalizeNetwork(net).data);
       return out;
     } else if (modelClass.modelName === "channel") {
       if ( ! net.stations() || net.stations().length != 1) {
-        throw new Error("unable to normalize channel, not single station: "+net.stations());
+        throw new Error("unable to normalize channel, not single station: "+net.stations().length);
       }
       let sta = net.stations()[0];
       if ( ! sta || sta.channels().length != 1) {
-        throw new Error("unable to normalize channel, not single channel: "+sta.channels());
+        throw new Error("unable to normalize channel, not single channel: "+sta.channels().length);
       }
       let out = this.normalizeChannel(sta.channels()[0]);
       out.included.push(this.normalizeNetwork(net).data);
@@ -76,7 +80,7 @@ export default JSONAPISerializer.extend({
       }
       let sta = net.stations()[0];
       if ( ! sta || sta.channels().length != 1) {
-        throw new Error("unable to normalize channel, not single channel: "+sta.channels());
+        throw new Error("resp unable to normalize channel, not single channel: "+sta.channels().length);
       }
       let out = this.normalizeChannelResponse(sta.channels()[0].response(), sta.channels()[0].createId());
       out.included.push(this.normalizeNetwork(net).data);

@@ -1,5 +1,8 @@
 import JSONAPISerializer from 'ember-data/serializers/json-api';
 
+import seisplotjs from 'ember-seisplotjs';
+const moment = seisplotjs.model.moment;
+
 export default JSONAPISerializer.extend({
   normalizeResponse(store, primaryModelClass, payload, id, requestType) {
     if (requestType === 'findRecord') {
