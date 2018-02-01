@@ -27,7 +27,7 @@ module.exports = {
     .then(() => {
       // Add npm packages to package.json
       return this.addPackagesToProject([
-        {name: 'seisplotjs', target: '^1.1.0-alpha.1'}
+        {name: 'seisplotjs', target: '^1.1.0'}
       ]);
     });
    }
