@@ -19,26 +19,36 @@ export default DS.Adapter.extend({
     let stationQuery = new seisplotjs.fdsnstation.StationQuery()
       .protocol(protocol)
       .networkCode(splitId[0]);
+    let idDate = null;
     if (idDateStr) {
       // network level for perm nets may not have date
-      let idDate = moment.utc(idDateStr);
+      idDate = moment.utc(idDateStr);
       stationQuery.startTime(idDate);
-      stationQuery.startBefore(idDate.add(1, 'second'));
     }
     if (modelName === seisplotjs.fdsnstation.LEVEL_NETWORK) {
+      // don't set startsBefore on net or sta due to weird
+      // dmc impl only using channels for start/end
       promise = stationQuery.queryNetworks();
     } else if (modelName === seisplotjs.fdsnstation.LEVEL_STATION) {
+      // don't set startsBefore on net or sta due to weird
+      // dmc impl only using channels for start/end
       stationQuery.stationCode(splitId[1]);
       promise = stationQuery.queryStations();
     } else if (modelName === seisplotjs.fdsnstation.LEVEL_CHANNEL) {
       stationQuery.stationCode(splitId[1])
         .locationCode(splitId[2])
         .channelCode(splitId[3]);
+      if (idDate) {
+        stationQuery.startBefore(idDate.add(1, 'second'));
+      }
       promise = stationQuery.queryChannels();
     } else if (modelName === seisplotjs.fdsnstation.LEVEL_RESPONSE) {
       stationQuery.stationCode(splitId[1])
         .locationCode(splitId[2])
         .channelCode(splitId[3]);
+      if (idDate) {
+        stationQuery.startBefore(idDate.add(1, 'second'));
+      }
       promise = stationQuery.queryResponse();
     } else {
       throw new Error("Unknown type: "+modelName);
