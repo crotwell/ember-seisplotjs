@@ -6,7 +6,6 @@ const moment = seisplotjs.model.moment;
 
 export default JSONAPISerializer.extend({
   normalizeResponse(store, primaryModelClass, payload, id, requestType) {
-    console.log("fdsnstation serializer normalizeResponse "+requestType+" "+primaryModelClass.modelName);
     if (requestType === 'findRecord') {
       return this.normalize(primaryModelClass, payload);
     } else if (requestType === 'findHasMany') {
@@ -14,29 +13,24 @@ export default JSONAPISerializer.extend({
         let net = payload[0];
         let out = [];
         for (const st of net.stations()) {
-          console.log("normalizeResponse push station "+st.codes());
           const normSta = this.normalizeStation(st);
           out.push(normSta.data);
         }
         let included = [ this.normalizeNetwork(net).data ];
-        console.log("finish normalizeResponse "+out.length+" "+requestType+" "+primaryModelClass.modelName);
         return { data: out, included: included };
       } else if (primaryModelClass.modelName === 'channel') {
         let net = payload[0];
         let sta = net.stations()[0];
         let out = [];
         for (const c of sta.channels()) {
-          console.log("normalizeResponse push channel "+c.codes());
           out.push(this.normalizeChannel(c).data);
         }
         let included = [ this.normalizeNetwork(net).data, this.normalizeStation(sta).data];
-        console.log("finish normalizeResponse "+out.length+" "+requestType+" "+primaryModelClass.modelName);
         return { data: out, included: included };
       } else {
         throw new Error("unknown modelName for normalizeResponse findHasMany "+primaryModelClass.modelName);
       }
     } else {
-      console.log("normalizeResponse "+requestType);
       const mythis = this;
       return payload.reduce(function(documentHash, item) {
         let { data, included } = mythis.normalize(primaryModelClass, item);
@@ -47,10 +41,8 @@ export default JSONAPISerializer.extend({
     }
   },
   normalize(modelClass, resourceHash) {
-    console.log("fdsnstation serializer normalize "+modelClass.modelName);
     let net = resourceHash;
     if (Array.isArray(resourceHash)) {
-      console.log("fdsnstation serializer normalize resourceHash is Array "+resourceHash.length);
       net = resourceHash[0];
     }
     if (modelClass.modelName === "network") {
@@ -110,18 +102,15 @@ export default JSONAPISerializer.extend({
       }
     };
     const included = [];
-    console.log("included stations: "+net.stations().length);
     if (net.stations() && net.stations().length != 0) {
       for (const s of net.stations()) {
         const staNorm = this.normalizeStation(s);
-        console.log("push station: "+s.codes()+" id "+staNorm.data.id);
         included.push(staNorm.data);
       }
     }
     return { data: data, included: included };
   },
   normalizeStation(sta) {
-    console.log("normalizeStation "+sta.codes()+" id: "+this.createStationId(sta));
     const data = {
       id: this.createStationId(sta),
       type: 'station',
@@ -154,7 +143,6 @@ export default JSONAPISerializer.extend({
     const included = [];
     if (sta.channels() && sta.channels().length != 0) {
       for (const c of sta.channels()) {
-        console.log("push channel: "+c.codes());
         included.push(this.normalizeChannel(c).data);
       }
     }
@@ -162,7 +150,6 @@ export default JSONAPISerializer.extend({
     return out;
   },
   normalizeChannel(chan) {
-    console.log("normalizeChannel "+chan.codes()+" id: "+this.createChannelId(chan));
     const data = {
       id: this.createChannelId(chan),
       type: 'channel',
@@ -209,7 +196,6 @@ export default JSONAPISerializer.extend({
     return { data: data, included: included };
   },
   normalizeChannelResponse(resp, chanId) {
-    console.log("normalizeChannelResponse");
     if ( ! chanId) {throw new Error("ChannelId is not defined: "+chanId);}
     const data = {
       id: chanId,
