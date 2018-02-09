@@ -1,7 +1,7 @@
 {
   "name": "ember-seisplotjs",
   "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "Easier use of seisplotjs in ember apps.",
   "keywords": [
     "ember-addon",
     "seisplotjs",
