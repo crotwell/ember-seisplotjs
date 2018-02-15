@@ -69,11 +69,10 @@ export default DS.Adapter.extend({
   },
   findAll(store, type, sinceToken) {
     console.log("Station adapter findAll");
-    throw new Error("No impl findAll");},
-  findMany(store, type, ids, snapshots) {
-    console.log("Station adapter findMany");
-    throw new Error("No impl findMany");
+    throw new Error("No impl findAll "+type.modelName);
   },
+  // no impl findMany as not possible with current fdsn station ws
+
   createRecord(store, type, snapshot) {throw new Error("fdsnstation is read-only, create not allowed.");},
   deleteRecord(store, type, snapshot) {throw new Error("fdsnstation is read-only, delete not allowed.");},
   findHasMany(store, snapshot, link, relationship) {
@@ -102,7 +101,7 @@ export default DS.Adapter.extend({
   /** checks for http or https */
   findProtocol() {
     var protocol = 'http:';
-    if ("https:" == document.location.protocol) {
+    if (document && "https:" == document.location.protocol) {
       protocol = 'https:'
     }
     return protocol;
