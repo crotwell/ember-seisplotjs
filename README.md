@@ -4,7 +4,6 @@ ember-seisplotjs
 Wrapping [seisplotjs](https://github.com/crotwell/seisplotjs) for use in
 [Ember](http://emberjs.com).
 
-
 Installation
 ------------------------------------------------------------------------------
 
@@ -37,7 +36,7 @@ Contributing
 
 * `ember test` – Runs the test suite on the current Ember version
 * `ember test --server` – Runs the test suite in "watch mode"
-* `npm test` – Runs `ember try:each` to test your addon against multiple Ember versions
+* `ember try:each` – Runs the test suite against multiple Ember versions
 
 ### Running the dummy application
 
