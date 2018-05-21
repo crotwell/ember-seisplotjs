@@ -1,32 +1,52 @@
-# ember-seisplotjs
+ember-seisplotjs
+==============================================================================
 
 Wrapping [seisplotjs](https://github.com/crotwell/seisplotjs) for use in
 [Ember](http://emberjs.com).
 
-`ember install ember-seisplotjs`
+
+Installation
+------------------------------------------------------------------------------
+
+```
+ember install ember-seisplotjs
+```
 
 
-This README outlines the details of collaborating on this Ember addon.
+Usage
+------------------------------------------------------------------------------
 
-## Installation
+[Longer description of how to use the addon in apps.]
 
-* `git clone <repository-url>` this repository
+
+Contributing
+------------------------------------------------------------------------------
+
+### Installation
+
+* `git clone <repository-url>`
 * `cd ember-seisplotjs`
 * `npm install`
 
-## Running
+### Linting
+
+* `npm run lint:js`
+* `npm run lint:js -- --fix`
+
+### Running tests
+
+* `ember test` – Runs the test suite on the current Ember version
+* `ember test --server` – Runs the test suite in "watch mode"
+* `npm test` – Runs `ember try:each` to test your addon against multiple Ember versions
+
+### Running the dummy application
 
 * `ember serve`
-* Visit your app at [http://localhost:4200](http://localhost:4200).
-
-## Running Tests
-
-* `npm test` (Runs `ember try:each` to test your addon against multiple Ember versions)
-* `ember test`
-* `ember test --server`
-
-## Building
-
-* `ember build`
+* Visit the dummy application at [http://localhost:4200](http://localhost:4200).
 
 For more information on using ember-cli, visit [https://ember-cli.com/](https://ember-cli.com/).
+
+License
+------------------------------------------------------------------------------
+
+This project is licensed under the [MIT License](LICENSE.md).
