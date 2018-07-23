@@ -7,6 +7,7 @@ import { computed } from "@ember/object";
 import { getOwner } from "@ember/application";
 import seisplotjs from 'ember-seisplotjs';
 import FdsnDataSelect from '../utils/fdsndataselect';
+import moment from 'moment';
 
 let miniseed = seisplotjs.miniseed;
 let waveformplot = seisplotjs.waveformplot;
@@ -70,7 +71,16 @@ console.log("updat4Graph: "+this.get('channel'));
       console.log("got channel for seis display");
       const ds = fdsnDataSelect;
       //const ds = this.get('fdsnDataSelect');
-      return ds.load(this.get('channel'), 300, new Date()).then(seisList => {
+      let seconds = 300;
+      let sps = this.get('channel').sampleRate;
+      if (sps > 1) {
+        seconds = 300;
+      } else if (sps <= .1) {
+        seconds = 86400;
+      } else {
+        seconds = 3600;
+      }
+      return ds.load(this.get('channel'), seconds, moment.utc()).then(seisList => {
 
           that.appendWaveform(seisList);
       });

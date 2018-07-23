@@ -1,5 +1,6 @@
 import EmberObject from '@ember/object';
 import seisplotjs from 'ember-seisplotjs';
+import moment from 'moment';
 
 export default EmberObject.extend({
   init() {},
@@ -7,19 +8,19 @@ export default EmberObject.extend({
   load(channel, startTime, endTime) {
   console.log("in fdsndataselect util load: "+channel);
     if ( ! endTime) {
-      endTime = new Date();
+      endTime = moment.utc();
     }
     if (typeof startTime === 'number') {
-      if ( ! (endTime instanceof Date)) {
+      if ( ! (endTime instanceof moment)) {
         throw new Error("can't calculate times for s="+startTime+" e="+endTime);
       }
-      startTime = new Date(endTime.getTime()-startTime*1000);
+      startTime = moment.utc(endTime).subtract(startTime, 'seconds');
     }
     if (typeof endTime === 'number') {
-      if ( ! (startTime instanceof Date)) {
+      if ( ! (startTime instanceof moment)) {
         throw new Error("can't calculate times for s="+startTime+" e="+endTime);
       }
-      endTime = new Date(startTime.getTime()+endTime*1000);
+      endTime = moment.utc(startTime).add(endTime, 'seconds');
     }
     const query = new seisplotjs.fdsndataselect.DataSelectQuery();
     query.networkCode(channel.get('networkCode'))
