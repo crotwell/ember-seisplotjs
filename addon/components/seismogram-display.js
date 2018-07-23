@@ -1,5 +1,5 @@
 import Component from '@ember/component';
-import {observer} from '@ember/object';
+import { observer } from '@ember/object';
 import RSVP from 'rsvp';
 import layout from '../templates/components/seismogram-display';
 import { inject as service } from '@ember/service';

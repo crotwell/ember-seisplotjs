@@ -1,0 +1,37 @@
+{
+  "created": "2018-02-05T18:10:00Z",
+  "datacenters": [
+    {
+      "id": "IRIS",
+      "name": "IRIS Data Management Center",
+      "website": "",
+      "email": "",
+      "host": "service.iris.edu",
+      "region": "North America",
+      "supports": [
+        {
+          "type": "ringserver",
+          "versions": [ 3.1 ],
+          "host": "rtserve.iris.washington.edu",
+          "port": 80
+        }
+      ]
+    },
+    {
+      "id": "SCSN",
+      "name": "South Carolina Seismic Network",
+      "website": "www.seis.sc.edu",
+      "email": "scsn@seis.sc.edu",
+      "host": "eeyore.seis.sc.edu",
+      "region": "North America",
+      "supports": [
+        {
+          "type": "ringserver",
+          "versions": [ 3.1 ],
+          "host": "eeyore.seis.sc.edu",
+          "port": 6382
+        }
+      ]
+    }
+  ]
+}
