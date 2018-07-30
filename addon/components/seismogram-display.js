@@ -6,31 +6,27 @@ import { inject as service } from '@ember/service';
 import { computed } from "@ember/object";
 import { getOwner } from "@ember/application";
 import seisplotjs from 'ember-seisplotjs';
-import FdsnDataSelect from '../utils/fdsndataselect';
+//import FdsnDataSelect from '../utils/fdsndataselect';
 import moment from 'moment';
 
 let miniseed = seisplotjs.miniseed;
 let waveformplot = seisplotjs.waveformplot;
 let d3 = waveformplot.d3;
-let fdsnDataSelect = new FdsnDataSelect();
+//let fdsnDataSelect = new FdsnDataSelect();
 
-console.log("fdsndataselect from import: "+FdsnDataSelect);
+//console.log("fdsndataselect from import: "+FdsnDataSelect);
 
 
 export default Component.extend({
+  fdsnDataSelect: service(),
+  travelTime: service(),
+  seismogramMap: null,
+  phases: null,
+  isOverlay: false,
+  isRotateGCP: false,
+  seischartList: [],
+
   layout,
-  travelTime: computed(function() {
-    return getOwner(this).lookup('service:travel-time');
-  }),
-  /*
-  fdsnDataSelect: computed(function() {
-    console.log("getting fdsnDataSelect");
-    return fdsndataselect_service;
-    //return getOwner(this).lookup('service:fdsndataselect');
-    //return getOwner(this).lookup('service:ember-seisplotjs/fdsndataselect');
-    //return getOwner(this).lookup('service:ember-seisplotjs/service/fdsndataselect');
-  }),
-  */
 
   didInsertElement() {
     this._super(...arguments);
@@ -51,8 +47,6 @@ export default Component.extend({
 
 
 
-  isOverlay: false,
-  seischartList: [],
   updateGraph: function() {
     console.log("updat4Graph: ");
     const that = this;
@@ -60,17 +54,14 @@ export default Component.extend({
     let elementId = this.get('elementId');
     d3.select('#'+elementId).select("div.seismogramInnerDiv").selectAll("div").remove();
 console.log("updat4Graph: "+this.get('channel'));
-    if (this.get('seismogramList')) {
-      this.get('seismogramList').then(wList => {
-        wList.forEach(ww => {
-          that.appendWaveform(ww);
-        });
-        //return this.drawPhases();
+    if (this.get('seismogramMap')) {
+      this.get('seismogramMap').then(seisMap => {
+          that.appendWaveformMap(seisMap);
       });
     } else if (this.get('channel')) {
       console.log("got channel for seis display");
-      const ds = fdsnDataSelect;
-      //const ds = this.get('fdsnDataSelect');
+      //const ds = fdsnDataSelect;
+      const ds = this.get('fdsnDataSelect');
       let seconds = 300;
       let sps = this.get('channel').sampleRate;
       if (sps > 1) {
@@ -80,45 +71,54 @@ console.log("updat4Graph: "+this.get('channel'));
       } else {
         seconds = 3600;
       }
-      return ds.load(this.get('channel'), seconds, moment.utc()).then(seisList => {
-
-          that.appendWaveform(seisList);
+      return ds.load(this.get('channel'), seconds, moment.utc()).then(seisMap => {
+            that.appendWaveformMap(seisMap);
       });
     }
   },
-  rotateToGCP(seismogramList) {
+  rotateToGCP(seismogramMap) {
     throw new Error("not yet impl");
-    //for (wf of seismogramList) {
-      //let nsl = wf.
-    //}
   },
-  appendWaveform: function(miniseedList) {
+
+  appendWaveformMap: function(seisMap) {
+    console.log("appendWaveformMap: "+seisMap.size);
     let that = this;
+    let elementId = this.get('elementId');
     let seischartList = that.get('seischartList');
     let sharedXScale = null;
     if (seischartList.length != 0) {
       sharedXScale = seischartList[0].xScale;
     }
-    let msByChan = miniseed.byChannel(miniseedList);
-    let elementId = this.get('elementId');
-    for(let key of msByChan.keys()) {
-      let mseedRecordArray = miniseed.merge(msByChan.get(key));
-      if (seischartList.length == 0 || ! this.get('isOverlay')) {
-        let sc = this.initSeisChart(mseedRecordArray, key, sharedXScale);
-        sc.setTitle(key);
-        this.seischartList.push(sc);
-        sc.scaleChangeListeners.push(this);
+    seisMap.forEach(seis => {
+      console.log("appendWaveform: "+seis[0].codes());
+      const key = seis[0].codes();
+      let seisGraph;
+      if (this.get('isOverlay')) {
+        seisGraph = seischartList[0];
       } else {
-        let title = seischartList[0].title;
-        this.seischartList[0].append(mseedRecordArray);
-        title += " "+key;
-        d3.select('#'+elementId).select("div").select(".seismogramInnerDiv").select("div").select("h5").text(title);
-
+        seisGraph = seischartList.find( graph => {
+          return graph.segments()[0].codes() === key;
+        })
       }
-    }
-    if (seischartList.length > 0 && this.get('isOverlay')) {
-      seischartList[0].setTitle(Array.from(msByChan.keys()));
-    }
+      if (seisGraph ){
+        seisGraph.append(seis);
+        if (this.get('isOverlay')) {
+          if (Array.isArray(seisGraph.title)) {
+            seisGraph.setTitle(seisGraph.title.push(key));
+            d3.select('#'+elementId).select("div").select(".seismogramInnerDiv").select("div").select("h5").text(key);
+          } else {
+            seisGraph.setTitle([ seisGraph.title, key ]);
+          }
+          seisGraph.draw();
+          d3.select('#'+elementId).select("div").select(".seismogramInnerDiv").select("div").select("h5").text(key);
+        }
+      } else {
+        // need to create
+        seisGraph = this.initSeisChart(seis, key , sharedXScale);
+        this.seischartList.push(seisGraph);
+        d3.select('#'+elementId).select("div").select(".seismogramInnerDiv").select("div").select("h5").text(key);
+      }
+    })
   },
   initSeisChart: function(mseedRecords, title, sharedXScale) {
     let elementId = this.get('elementId');
@@ -134,8 +134,10 @@ console.log("updat4Graph: "+this.get('channel'));
     if (sharedXScale) {
       seischart.xScale = sharedXScale;
     }
-    seischart.setTitle(title);
+    seischart.setTitle( [ title ] );
     seischart.draw();
+    seischart.scaleChangeListeners.push(this);
+    this.seischartList.push(seischart);
     return seischart;
   },
   drawPhases: function() {
@@ -203,8 +205,9 @@ console.log("updat4Graph: "+this.get('channel'));
     rotateObserver: observer('isRotateGCP', function() {
       this.updateGraph();
     }),
-    seismogramListObserver: observer('seismogramList', function() {
-      this.updateGraph();
+    seismogramMapObserver: observer('seismogramMap', function() {
+      console.log("seismogramMapObserver fire");
+    //  this.updateGraph();
     }),
     notifyScaleChange(xScale) {
       this.seischartList.forEach( sc => {
