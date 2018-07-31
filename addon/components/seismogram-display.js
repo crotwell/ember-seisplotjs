@@ -24,6 +24,7 @@ export default Component.extend({
   phases: null,
   isOverlay: false,
   isRotateGCP: false,
+  isRMean: true,
   seischartList: [],
 
   layout,
@@ -61,20 +62,24 @@ console.log("updat4Graph: "+this.get('channel'));
     } else if (this.get('channel')) {
       console.log("got channel for seis display");
       //const ds = fdsnDataSelect;
-      const ds = this.get('fdsnDataSelect');
-      let seconds = 300;
-      let sps = this.get('channel').sampleRate;
-      if (sps > 1) {
-        seconds = 300;
-      } else if (sps <= .1) {
-        seconds = 86400;
-      } else {
-        seconds = 3600;
-      }
-      return ds.load(this.get('channel'), seconds, moment.utc()).then(seisMap => {
+      return this.loadDataForChannel(this.get('channel'))
+        .then(seisMap => {
             that.appendWaveformMap(seisMap);
-      });
+        });
     }
+  },
+  loadDataForChannel: function(channel) {
+    const ds = this.get('fdsnDataSelect');
+    let seconds = 300;
+    let sps = channel.sampleRate;
+    if (sps > 1) {
+      seconds = 300;
+    } else if (sps <= .1) {
+      seconds = 86400;
+    } else {
+      seconds = 3600;
+    }
+    return ds.load(channel, seconds, moment.utc());
   },
   rotateToGCP(seismogramMap) {
     throw new Error("not yet impl");
@@ -134,6 +139,7 @@ console.log("updat4Graph: "+this.get('channel'));
     if (sharedXScale) {
       seischart.xScale = sharedXScale;
     }
+    seischart.setDoRMean(this.isRMean);
     seischart.setTitle( [ title ] );
     seischart.draw();
     seischart.scaleChangeListeners.push(this);
@@ -200,10 +206,19 @@ console.log("updat4Graph: "+this.get('channel'));
       this.drawPhases();
     }),
     overlayObserver: observer('isOverlay', function() {
+    console.log("overlayObserver set to "+this.isOverlay);
       this.updateGraph();
     }),
     rotateObserver: observer('isRotateGCP', function() {
+    console.log("rotateObserver set to "+this.isRotateGCP);
       this.updateGraph();
+    }),
+    rMeanObserver: observer('isRMean', function() {
+        let seischartList = this.get('seischartList');
+        console.log("rMeanObserver set to "+this.isRMean);
+        for (let graph of seischartList) {
+          graph.setDoRMean(this.isRMean);
+        }
     }),
     seismogramMapObserver: observer('seismogramMap', function() {
       console.log("seismogramMapObserver fire");
