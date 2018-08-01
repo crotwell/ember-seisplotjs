@@ -25,6 +25,8 @@ export default Component.extend({
   isOverlay: false,
   isRotateGCP: false,
   isRMean: true,
+  isGain: true,
+  channelMap: new Map(),
   seischartList: [],
 
   layout,
@@ -61,6 +63,7 @@ console.log("updat4Graph: "+this.get('channel'));
       });
     } else if (this.get('channel')) {
       console.log("got channel for seis display");
+      this.channelMap.set(this.get('channel').codes, this.channel);
       //const ds = fdsnDataSelect;
       return this.loadDataForChannel(this.get('channel'))
         .then(seisMap => {
@@ -94,9 +97,9 @@ console.log("updat4Graph: "+this.get('channel'));
     if (seischartList.length != 0) {
       sharedXScale = seischartList[0].xScale;
     }
-    seisMap.forEach(seis => {
-      console.log("appendWaveform: "+seis[0].codes());
-      const key = seis[0].codes();
+    seisMap.forEach(seisArray => {
+      console.log("appendWaveform: "+seisArray[0].codes());
+      const key = seisArray[0].codes();
       let seisGraph;
       if (this.get('isOverlay')) {
         seisGraph = seischartList[0];
@@ -106,11 +109,10 @@ console.log("updat4Graph: "+this.get('channel'));
         })
       }
       if (seisGraph ){
-        seisGraph.append(seis);
+        seisGraph.append(seisArray);
         if (this.get('isOverlay')) {
           if (Array.isArray(seisGraph.title)) {
             seisGraph.setTitle(seisGraph.title.push(key));
-            d3.select('#'+elementId).select("div").select(".seismogramInnerDiv").select("div").select("h5").text(key);
           } else {
             seisGraph.setTitle([ seisGraph.title, key ]);
           }
@@ -119,8 +121,10 @@ console.log("updat4Graph: "+this.get('channel'));
         }
       } else {
         // need to create
-        seisGraph = this.initSeisChart(seis, key , sharedXScale);
+        seisGraph = this.initSeisChart(seisArray, key , sharedXScale);
         this.seischartList.push(seisGraph);
+        seisGraph.setInstrumentSensitivity(this.channelMap.get(key).instrumentSensitivity);
+        seisGraph.draw();
         d3.select('#'+elementId).select("div").select(".seismogramInnerDiv").select("div").select("h5").text(key);
       }
     })
@@ -140,8 +144,8 @@ console.log("updat4Graph: "+this.get('channel'));
       seischart.xScale = sharedXScale;
     }
     seischart.setDoRMean(this.isRMean);
+    seischart.setDoGain(this.isGain);
     seischart.setTitle( [ title ] );
-    seischart.draw();
     seischart.scaleChangeListeners.push(this);
     this.seischartList.push(seischart);
     return seischart;
@@ -218,6 +222,13 @@ console.log("updat4Graph: "+this.get('channel'));
         console.log("rMeanObserver set to "+this.isRMean);
         for (let graph of seischartList) {
           graph.setDoRMean(this.isRMean);
+        }
+    }),
+    gainObserver: observer('isGain', function() {
+        let seischartList = this.get('seischartList');
+        console.log("gainObserver set to "+this.isGain);
+        for (let graph of seischartList) {
+          graph.setDoGain(this.isGain);
         }
     }),
     seismogramMapObserver: observer('seismogramMap', function() {
