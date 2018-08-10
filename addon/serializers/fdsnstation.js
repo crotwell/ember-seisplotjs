@@ -12,7 +12,7 @@ export default JSONAPISerializer.extend({
       if (primaryModelClass.modelName === 'station') {
         let net = payload[0];
         let out = [];
-        for (const st of net.stations()) {
+        for (const st of net.stations) {
           const normSta = this.normalizeStation(st);
           out.push(normSta.data);
         }
@@ -20,9 +20,9 @@ export default JSONAPISerializer.extend({
         return { data: out, included: included };
       } else if (primaryModelClass.modelName === 'channel') {
         let net = payload[0];
-        let sta = net.stations()[0];
+        let sta = net.stations[0];
         let out = [];
-        for (const c of sta.channels()) {
+        for (const c of sta.channels) {
           out.push(this.normalizeChannel(c).data);
         }
         let included = [ this.normalizeNetwork(net).data, this.normalizeStation(sta).data];
@@ -48,36 +48,36 @@ export default JSONAPISerializer.extend({
     if (modelClass.modelName === "network") {
       return this.normalizeNetwork(net);
     } else if (modelClass.modelName === "station") {
-      if ( ! net.stations() || net.stations().length != 1) {
-        throw new Error("unable to normalize station, not single station: "+net.stations().length);
+      if ( ! net.stations || net.stations.length != 1) {
+        throw new Error("unable to normalize station, not single station: "+net.stations.length);
       }
-      let out = this.normalizeStation(net.stations()[0]);
+      let out = this.normalizeStation(net.stations[0]);
       out.included.push(this.normalizeNetwork(net).data);
       return out;
     } else if (modelClass.modelName === "channel") {
-      if ( ! net.stations() || net.stations().length != 1) {
-        throw new Error("unable to normalize channel, not single station: "+net.stations().length);
+      if ( ! net.stations || net.stations.length != 1) {
+        throw new Error("unable to normalize channel, not single station: "+net.stations.length);
       }
-      let sta = net.stations()[0];
-      if ( ! sta || sta.channels().length != 1) {
-        throw new Error("unable to normalize channel, not single channel: "+sta.channels().length);
+      let sta = net.stations[0];
+      if ( ! sta || sta.channels.length != 1) {
+        throw new Error("unable to normalize channel, not single channel: "+sta.channels.length);
       }
-      let out = this.normalizeChannel(sta.channels()[0]);
+      let out = this.normalizeChannel(sta.channels[0]);
       out.included.push(this.normalizeNetwork(net).data);
       out.included.push(this.normalizeStation(sta).data);
       return out;
     } else if (modelClass.modelName === "response") {
-      if ( ! net.stations() || net.stations().length != 1) {
-        throw new Error("unable to normalize channel, not single station: "+net.stations());
+      if ( ! net.stations || net.stations.length != 1) {
+        throw new Error("unable to normalize channel, not single station: "+net.stations);
       }
-      let sta = net.stations()[0];
-      if ( ! sta || sta.channels().length != 1) {
-        throw new Error("resp unable to normalize channel, not single channel: "+sta.channels().length);
+      let sta = net.stations[0];
+      if ( ! sta || sta.channels.length != 1) {
+        throw new Error("resp unable to normalize channel, not single channel: "+sta.channels.length);
       }
-      let out = this.normalizeChannelResponse(sta.channels()[0].response(), sta.channels()[0].createId());
+      let out = this.normalizeChannelResponse(sta.channels[0].response, sta.channels[0].createId());
       out.included.push(this.normalizeNetwork(net).data);
       out.included.push(this.normalizeStation(sta).data);
-      out.included.push(this.normalizeChannel(sta.channels()[0]).data);
+      out.included.push(this.normalizeChannel(sta.channels[0]).data);
       return out;
     }
     throw new Error("fdsnstation serializer unknown type to normalize: "+resourceHash.id
@@ -88,10 +88,10 @@ export default JSONAPISerializer.extend({
       id: this.createNetworkId(net),
       type: 'network',
       attributes: {
-          networkCode: net.networkCode(),
-          startTime: net.startDate(),
-          endTime: net.endDate(),
-          description: net.description()
+          networkCode: net.networkCode,
+          startTime: net.startDate,
+          endTime: net.endDate,
+          description: net.description
       },
       relationships: {
         stations: {
@@ -102,8 +102,8 @@ export default JSONAPISerializer.extend({
       }
     };
     const included = [];
-    if (net.stations() && net.stations().length != 0) {
-      for (const s of net.stations()) {
+    if (net.stations && net.stations.length != 0) {
+      for (const s of net.stations) {
         const staNorm = this.normalizeStation(s);
         included.push(staNorm.data);
       }
@@ -115,13 +115,13 @@ export default JSONAPISerializer.extend({
       id: this.createStationId(sta),
       type: 'station',
       attributes: {
-        stationCode: sta.stationCode(),
-        startTime: sta.startDate(),
-        endTime: sta.endDate(),
-        name: sta.name(),
-        latitude: sta.latitude(),
-        longitude: sta.longitude(),
-        elevation: sta.elevation()
+        stationCode: sta.stationCode,
+        startTime: sta.startDate,
+        endTime: sta.endDate,
+        name: sta.name,
+        latitude: sta.latitude,
+        longitude: sta.longitude,
+        elevation: sta.elevation
       },
       relationships: {
         network: {
@@ -130,7 +130,7 @@ export default JSONAPISerializer.extend({
           },
           data: {
             type: 'network',
-            id: this.createNetworkId(sta.network())
+            id: this.createNetworkId(sta.network)
           }
         },
         channels: {
@@ -141,8 +141,8 @@ export default JSONAPISerializer.extend({
       }
     };
     const included = [];
-    if (sta.channels() && sta.channels().length != 0) {
-      for (const c of sta.channels()) {
+    if (sta.channels && sta.channels.length != 0) {
+      for (const c of sta.channels) {
         included.push(this.normalizeChannel(c).data);
       }
     }
@@ -154,25 +154,25 @@ export default JSONAPISerializer.extend({
       id: this.createChannelId(chan),
       type: 'channel',
       attributes: {
-        channelCode: chan.channelCode(),
-        locationCode: chan.locationCode(),
-        instrumentSensitivity: chan.instrumentSensitivity(),
-        startTime: chan.startDate(),
-        endTime: chan.endDate(),
-        latitude: chan.latitude(),
-        longitude: chan.longitude(),
-        elevation: chan.elevation(),
-        depth: chan.depth(),
-        azimuth: chan.azimuth(),
-        dip: chan.dip(),
-        sampleRate: chan.sampleRate(),
-        restrictedStatus: chan.restrictedStatus(),
+        channelCode: chan.channelCode,
+        locationCode: chan.locationCode,
+        instrumentSensitivity: chan.instrumentSensitivity,
+        startTime: chan.startDate,
+        endTime: chan.endDate,
+        latitude: chan.latitude,
+        longitude: chan.longitude,
+        elevation: chan.elevation,
+        depth: chan.depth,
+        azimuth: chan.azimuth,
+        dip: chan.dip,
+        sampleRate: chan.sampleRate,
+        restrictedStatus: chan.restrictedStatus,
       },
       relationships: {
         station: {
           data: {
             type: 'station',
-            id: this.createStationId(chan.station())
+            id: this.createStationId(chan.station)
           },
           links: {
             related: this.CHAN_STATION_URL
@@ -190,8 +190,8 @@ export default JSONAPISerializer.extend({
       }
     };
     const included = [];
-    if (chan.response() && chan.response().stages() && chan.response().stages().length > 0) {
-      included.push(this.normalizeChannelResponse(chan.response(), data.id).data);
+    if (chan.response && chan.response.stages && chan.response.stages.length > 0) {
+      included.push(this.normalizeChannelResponse(chan.response, data.id).data);
     }
     return { data: data, included: included };
   },
@@ -201,8 +201,8 @@ export default JSONAPISerializer.extend({
       id: chanId,
       type: 'response',
       attributes:    {
-          instrumentSensitivity: resp.instrumentSensitivity(),
-          stages: resp.stages()
+          instrumentSensitivity: resp.instrumentSensitivity,
+          stages: resp.stages
       }
     };
     const included = [];
@@ -230,22 +230,22 @@ export default JSONAPISerializer.extend({
   createNetworkId: function(spjsNet) {
     if (spjsNet.isTempNet()) {
       // append year if temp
-      return spjsNet.codes()+"_"+spjsNet.startDate().toISOString().substring(0,4);
+      return spjsNet.codes()+"_"+spjsNet.startDate.toISOString().substring(0,4);
     } else {
       return spjsNet.codes();
     }
   },
   createStationId: function(spjsStation) {
-    return this.createNetworkId(spjsStation.network())
-      +"."+spjsStation.stationCode()
-      +"_"+spjsStation.startDate().toISOString();
+    return this.createNetworkId(spjsStation.network)
+      +"."+spjsStation.stationCode
+      +"_"+spjsStation.startDate.toISOString;
   },
   createChannelId: function(spjsChannel) {
-    return this.createNetworkId(spjsChannel.station().network())
-      +"."+spjsChannel.station().stationCode()
-      +"."+spjsChannel.locationCode()
-      +"."+spjsChannel.channelCode()
-      +"_"+spjsChannel.startDate().toISOString();
+    return this.createNetworkId(spjsChannel.station.network)
+      +"."+spjsChannel.station.stationCode
+      +"."+spjsChannel.locationCode
+      +"."+spjsChannel.channelCode
+      +"_"+spjsChannel.startDate.toISOString;
   },
   NET_STATIONS_URL: "seisplotjs:net.stationsURL",
   STA_NETWORK_URL: "seisplotjs:sta.networkURL",
