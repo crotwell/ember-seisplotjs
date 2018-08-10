@@ -1,16 +1,16 @@
-import JSONAPISerializer from 'ember-data/serializers/json-api';
+import DS from 'ember-data';
 
 import seisplotjs from 'ember-seisplotjs';
 import moment from 'moment';
-//const moment = seisplotjs.model.moment;
 
-export default JSONAPISerializer.extend({
+export default DS.JSONAPISerializer.extend({
   normalizeResponse(store, primaryModelClass, payload, id, requestType) {
+    console.log(`FDSNEventSerializer normalizeResponse ${requestType} ${primaryModelClass}`);
     if (requestType === 'findRecord') {
       return this.normalize(primaryModelClass, payload);
     } else if (requestType === 'findHasMany') {
-      if (primaryModelClass.modelName === 'station') {
-        let net = payload[0];
+      if (primaryModelClass.modelName === 'quake') {
+        let q = payload[0];
         let out = [];
         for (const st of net.stations()) {
           const normSta = this.normalizeStation(st);
@@ -41,12 +41,9 @@ export default JSONAPISerializer.extend({
     }
   },
   normalize(modelClass, resourceHash) {
-    let net = resourceHash;
-    if (Array.isArray(resourceHash)) {
-      net = resourceHash[0];
-    }
-    if (modelClass.modelName === "network") {
-      return this.normalizeNetwork(net);
+    console.log(`FDSNEventSerializer normalize ${modelClass}`);
+    if (modelClass.modelName === "quake") {
+      return this.normalizeQuake(resourceHash);
     } else if (modelClass.modelName === "station") {
       if ( ! net.stations() || net.stations().length != 1) {
         throw new Error("unable to normalize station, not single station: "+net.stations().length);
@@ -83,32 +80,46 @@ export default JSONAPISerializer.extend({
     throw new Error("fdsnstation serializer unknown type to normalize: "+resourceHash.id
       +" "+modelClass.modelName);
   },
-  normalizeNetwork(net) {
+  normalizeQuake(quake) {
     const data = {
-      id: this.createNetworkId(net),
-      type: 'network',
+      id: this.createQuakeId(quake),
+      type: 'quake',
       attributes: {
-          networkCode: net.networkCode(),
-          startTime: net.startDate(),
-          endTime: net.endDate(),
-          description: net.description()
+          eventid: quake.eventid,
+          publicID: quake.publicID,
+          time: quake.time,
+          latitude: quake.latitude,
+          longitude: quake.longitude,
+          depth: quake.depth,
+          description: quake.description,
       },
       relationships: {
-        stations: {
+        magnitude: {
           links: {
-            related: this.NET_STATIONS_URL
+            related: this.QUAKE_MAG_URL
           }
         },
       }
     };
     const included = [];
-    if (net.stations() && net.stations().length != 0) {
-      for (const s of net.stations()) {
-        const staNorm = this.normalizeStation(s);
-        included.push(staNorm.data);
-      }
+    if (quake.magnitude) {
+        const magNorm = this.normalizeMagnitude(quake.magnitude);
+        included.push(magNorm.data);
     }
     return { data: data, included: included };
+  },
+  normalizeMagnitude(mag) {
+    const data = {
+      id: "1234"+this.createMagnitudeId(mag),
+      type: 'magnitude',
+      attributes: {
+        mag: mag.mag,
+        type: mag.type,
+      }
+    };
+    const included = [];
+    const out = { data: data, included: included };
+    return out;
   },
   normalizeStation(sta) {
     const data = {
@@ -227,18 +238,17 @@ export default JSONAPISerializer.extend({
 
     return json;
   },
-  createNetworkId: function(spjsNet) {
-    if (spjsNet.isTempNet()) {
-      // append year if temp
-      return spjsNet.codes()+"_"+spjsNet.startDate().toISOString().substring(0,4);
-    } else {
-      return spjsNet.codes();
-    }
+  createQuakeId: function(spjsQuake) {
+    return spjsQuake.eventid;
   },
-  createStationId: function(spjsStation) {
+  createOriginId: function(spjsStation) {
     return this.createNetworkId(spjsStation.network())
       +"."+spjsStation.stationCode()
       +"_"+spjsStation.startDate().toISOString();
+  },
+  createMagnitudeId: function(spjsMag) {
+  console.log(`createMagnitudeId ${spjsMag} ${spjsMag.publicID}`);
+    return spjsMag.publicID;
   },
   createChannelId: function(spjsChannel) {
     return this.createNetworkId(spjsChannel.station().network())
@@ -247,6 +257,7 @@ export default JSONAPISerializer.extend({
       +"."+spjsChannel.channelCode()
       +"_"+spjsChannel.startDate().toISOString();
   },
+  QUAKE_MAG_URL: "seisplotjs:quake.magURL",
   NET_STATIONS_URL: "seisplotjs:net.stationsURL",
   STA_NETWORK_URL: "seisplotjs:sta.networkURL",
   STA_CHANNELS_URL: "seisplotjs:sta.channelsURL",
