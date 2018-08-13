@@ -64,8 +64,62 @@ export default DS.Adapter.extend({
       });
   },
   query(store, type, query) {
-    console.log("Station adapter query");
-    throw new Error("No impl query");
+    console.log(`Station adapter query ${type.modelName}`);
+    if (type.modelName === 'network' ||
+        type.modelName === 'station' ||
+        type.modelName === 'channel' ||
+        type.modelName === 'response' ) {
+      let protocol = this.findProtocol();
+      let staQuery = new seisplotjs.fdsnstation.StationQuery()
+        .protocol(protocol);
+      if (query.specVersion) { staQuery.specVersion(query.specVersion);}
+      if (query.protocol) { staQuery.protocol(query.protocol);}
+      if (query.host) { staQuery.host(query.host);}
+      if (query.nodata) { staQuery.nodata(query.nodata);}
+
+      if (query.networkCode) { staQuery.networkCode(query.networkCode);}
+      if (query.stationCode) { staQuery.stationCode(query.stationCode);}
+      if (query.locationCode) { staQuery.locationCode(query.locationCode);}
+      if (query.channelCode) { staQuery.channelCode(query.channelCode);}
+      if (query.startTime) { staQuery.startTime(query.startTime);}
+      if (query.endTime) { staQuery.endTime(query.endTime);}
+      if (query.startBefore) { staQuery.startBefore(query.startBefore);}
+      if (query.endBefore) { staQuery.endBefore(query.endBefore);}
+      if (query.startAfter) { staQuery.startAfter(query.startAfter);}
+      if (query.endAfter) { staQuery.endAfter(query.endAfter);}
+      if (query.minLat) { staQuery.minLat(query.minLat);}
+      if (query.maxLat) { staQuery.maxLat(query.maxLat);}
+      if (query.minLon) { staQuery.minLon(query.minLon);}
+      if (query.maxLon) { staQuery.maxLon(query.maxLon);}
+      if (query.latitude) { staQuery.latitude(query.latitude);}
+      if (query.longitude) { staQuery.longitude(query.longitude);}
+      if (query.minRadius) { staQuery.minRadius(query.minRadius);}
+      if (query.maxRadius) { staQuery.maxRadius(query.maxRadius);}
+      if (query.includeRestricted) { staQuery.includeRestricted(query.includeRestricted);}
+      if (query.includeAvailability) { staQuery.includeAvailability(query.includeAvailability);}
+      if (query.format) { staQuery.format(query.format);}
+      if (query.updatedAfter) { staQuery.updatedAfter(query.updatedAfter);}
+      if (query.matchTimeseries) { staQuery.matchTimeseries(query.matchTimeseries);}
+
+      if ( ! staQuery.isSomeParameterSet()) {
+        console.log(` query: ${staQuery.formURL(type.modelName)}`)
+        throw new Error("FDSN Station Query but no parameters set, this results in a too large response.");
+      }
+      if (type.modelName === 'network' ) {
+        return staQuery.queryNetworks();
+      } else if (type.modelName === 'station' ) {
+        return staQuery.queryStations();
+      } else if (type.modelName === 'channel' ) {
+        return staQuery.queryChannels();
+      } else if (type.modelName === 'response' ) {
+        return staQuery.queryResponse();
+      } else {
+        throw new Error(`Unrecognized modelName: ${type.modelName}`);
+      }
+    } else {
+      console.log("Station adapter query");
+      throw new Error(`No impl query ${type.modelName}`);
+    }
   },
   findAll(store, type, sinceToken) {
     console.log("Station adapter findAll");

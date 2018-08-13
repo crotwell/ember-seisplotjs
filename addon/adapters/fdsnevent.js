@@ -17,8 +17,14 @@ export default DS.Adapter.extend({
     let protocol = this.findProtocol();
     let query = new seisplotjs.fdsnevent.EventQuery()
       .protocol(protocol)
-      .eventId(id);
-    return query.query();
+      .eventid(id);
+    return query.query().then(quakeArray => {
+      if (quakeArray.length == 1) {
+        return quakeArray[0];
+      } else {
+        throw new Error(`Query for eventid=${id} returned no quake.`);
+      }
+    });
   },
   query(store, type, query) {
     console.log(`quake adapter query ${type.modelName}`);
@@ -62,6 +68,10 @@ export default DS.Adapter.extend({
     if (query.orderBy) { eventQuery.orderBy(query.orderBy);}
     if (query.catalog) { eventQuery.catalog(query.catalog);}
     if (query.contributor) { eventQuery.contributor(query.contributor);}
+    if ( ! eventQuery.isSomeParameterSet()) {
+      console.log(` query: ${eventQuery.formURL(type.modelName)}`)
+      throw new Error("FDSN Event Query but no parameters set, this results in a too large response.");
+    }
     return eventQuery.query();
   },
   findAll(store, type, sinceToken) {

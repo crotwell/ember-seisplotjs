@@ -8,29 +8,38 @@ export default JSONAPISerializer.extend({
   normalizeResponse(store, primaryModelClass, payload, id, requestType) {
     if (requestType === 'findRecord') {
       return this.normalize(primaryModelClass, payload);
-    } else if (requestType === 'findHasMany') {
+    } else if (requestType === 'query' || requestType === 'findHasMany') {
       if (primaryModelClass.modelName === 'station') {
-        let net = payload[0];
         let out = [];
-        for (const st of net.stations) {
-          const normSta = this.normalizeStation(st);
-          out.push(normSta.data);
+        let included = [ ];
+        for (const net of payload) {
+          for (const st of net.stations) {
+            const normSta = this.normalizeStation(st);
+            out.push(normSta.data);
+          }
+          included.push(this.normalizeNetwork(net).data );
         }
-        let included = [ this.normalizeNetwork(net).data ];
         return { data: out, included: included };
       } else if (primaryModelClass.modelName === 'channel') {
-        let net = payload[0];
-        let sta = net.stations[0];
+
         let out = [];
-        for (const c of sta.channels) {
-          out.push(this.normalizeChannel(c).data);
+        let included = [ ];
+        for (const net of payload) {
+          for (const st of net.stations) {
+            for (const ch of st.channels) {
+              const normCh = this.normalizeChannel(ch);
+              out.push(normCh.data);
+            }
+            included.push(this.normalizeStation(st).data );
+          }
+          included.push(this.normalizeNetwork(net).data );
         }
-        let included = [ this.normalizeNetwork(net).data, this.normalizeStation(sta).data];
         return { data: out, included: included };
       } else {
         throw new Error("unknown modelName for normalizeResponse findHasMany "+primaryModelClass.modelName);
       }
     } else {
+      console.log(`fdsnstation serializer nomalizeResponse rt=${requestType} payload=${payload}`);
       const mythis = this;
       return payload.reduce(function(documentHash, item) {
         let { data, included } = mythis.normalize(primaryModelClass, item);
@@ -238,14 +247,14 @@ export default JSONAPISerializer.extend({
   createStationId: function(spjsStation) {
     return this.createNetworkId(spjsStation.network)
       +"."+spjsStation.stationCode
-      +"_"+spjsStation.startDate.toISOString;
+      +"_"+spjsStation.startDate.toISOString();
   },
   createChannelId: function(spjsChannel) {
     return this.createNetworkId(spjsChannel.station.network)
       +"."+spjsChannel.station.stationCode
       +"."+spjsChannel.locationCode
       +"."+spjsChannel.channelCode
-      +"_"+spjsChannel.startDate.toISOString;
+      +"_"+spjsChannel.startDate.toISOString();
   },
   NET_STATIONS_URL: "seisplotjs:net.stationsURL",
   STA_NETWORK_URL: "seisplotjs:sta.networkURL",
