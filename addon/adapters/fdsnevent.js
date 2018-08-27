@@ -4,7 +4,7 @@ import seisplotjs from 'ember-seisplotjs';
 import moment from 'moment';
 
 export default DS.Adapter.extend({
-  defaultHost: 'http://service.iris.edu',
+  defaultHost: 'http://earthquake.usgs.gov',
   defaultNamespace: 'fdsnws/event/1/query',
   defaultSerializer: 'fdsnevent',
 
@@ -14,7 +14,10 @@ export default DS.Adapter.extend({
       throw new Error("can only do quake");
     }
     console.log("FDSNEvent adapter findRecord modelName: "+modelName+" id: "+id);
-    let protocol = this.findProtocol();
+    //let protocol = this.findProtocol();
+    // usgs redirects to https, so just use that instead of
+    // using the current page protocol
+    let protocol = "https:";
     let query = new seisplotjs.fdsnevent.EventQuery()
       .protocol(protocol)
       .eventid(id);
@@ -32,7 +35,10 @@ export default DS.Adapter.extend({
     if (type.modelName != "quake") {
       throw new Error("can only do quake");
     }
-    let protocol = this.findProtocol();
+    //let protocol = this.findProtocol();
+    // usgs redirects to https, so just use that instead of
+    // using the current page protocol
+    let protocol = "https:";
     let eventQuery = new seisplotjs.fdsnevent.EventQuery()
       .protocol(protocol);
     if (query.specVersion) { eventQuery.specVersion(query.specVersion);}
@@ -110,8 +116,9 @@ export default DS.Adapter.extend({
   findProtocol() {
     var protocol = 'http:';
     if (document && "https:" == document.location.protocol) {
-      protocol = 'https:'
+      protocol = 'https:';
     }
+    console.log(`fdsnevent adapter findProtocol() == ${protocol}`);
     return protocol;
   }
 });

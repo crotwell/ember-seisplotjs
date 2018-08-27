@@ -9,6 +9,7 @@ export default DS.Model.extend({
       depth: DS.attr('number'),
       description: DS.attr('string'),
       prefMagnitude: DS.belongsTo('Magnitude'),
+      preferredMagnitudeID: DS.attr('string'),
       prefOrigin: DS.belongsTo('Origin'),
       magnitudeList: DS.hasMany('Magnitude'),
       originList: DS.hasMany('Origin'),

@@ -32,7 +32,7 @@ export default DS.JSONAPISerializer.extend({
     }
   },
   normalize(modelClass, resourceHash) {
-    console.log(`FDSNEventSerializer normalize ${modelClass}`);
+    console.log(`FDSNEventSerializer normalize ${modelClass.modelName}`);
     if (modelClass.modelName === "quake") {
       return this.normalizeQuake(resourceHash);
     } else if (modelClass.modelName === "station") {
@@ -83,9 +83,10 @@ export default DS.JSONAPISerializer.extend({
           longitude: quake.longitude,
           depth: quake.depth,
           description: quake.description,
+          preferredMagnitudeID: quake.preferredMagnitudeID,
       },
       relationships: {
-        magnitude: {
+        magnitudes: {
           links: {
             related: this.QUAKE_MAG_URL
           }
@@ -94,18 +95,35 @@ export default DS.JSONAPISerializer.extend({
     };
     const included = [];
     if (quake.magnitude) {
-        const magNorm = this.normalizeMagnitude(quake.magnitude);
-        included.push(magNorm.data);
+        const magNorm = this.normalizeMagnitude(quake.magnitude, quake).data;
+        included.push(magNorm);
+
+        data.relationships.prefMagnitude = {
+          data: {
+            id: magNorm.id,
+            type: magNorm.type,
+            }
+          };
     }
-    return { data: data, included: included };
+    let out = { data: data, included: included };
+    console.log(`norm quake jsonapi: ${JSON.stringify(out, null, "  ")}`);
+    return out;
   },
-  normalizeMagnitude(mag) {
+  normalizeMagnitude(mag, quake) {
     const data = {
-      id: "1234"+this.createMagnitudeId(mag),
+      id: this.createMagnitudeId(mag),
       type: 'magnitude',
       attributes: {
         mag: mag.mag,
         type: mag.type,
+      },
+      relationships: {
+        quake: {
+          data: {
+            type: 'quake',
+            id: quake.id,
+          }
+        }
       }
     };
     const included = [];
