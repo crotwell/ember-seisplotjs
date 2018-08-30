@@ -21,7 +21,7 @@ export default Component.extend({
   fdsnDataSelect: service(),
   travelTime: service(),
   seismogramMap: null,
-  channelMap: new Map(),
+  channelMap: null,
   phases: null,
   isOverlay: false,
   isRotateGCP: false,
@@ -123,7 +123,7 @@ console.log(`updat4Graph: channel: ${this.get('channel')}`);
   },
 
   appendWaveformMap: function(seisMap) {
-    console.log("appendWaveformMap: "+seisMap.size);
+    console.log(`appendWaveformMap: ${seisMap.size} chan${this.channelMap.size}`);
     let that = this;
     let elementId = this.get('elementId');
     let seischartList = that.get('seischartList');
@@ -131,8 +131,31 @@ console.log(`updat4Graph: channel: ${this.get('channel')}`);
     if (seischartList.length != 0) {
       sharedXScale = seischartList[0].xScale;
     }
-    seisMap.forEach((seisArray, key) => {
-      console.log(`appendWaveform: ${key}`);
+    let orderedKeys = Array.from(seisMap.keys()).sort((a,b) => {
+      let chanA = that.channelMap.get(a);
+      let chanB = that.channelMap.get(b);
+      if (chanA && chanB && that.quake) {
+        let distA = seisplotjs.distaz.distaz(chanA.latitude, chanA.longitude, that.quake.latitude, that.quake.longitude);
+        let distB = seisplotjs.distaz.distaz(chanB.latitude, chanB.longitude, that.quake.latitude, that.quake.longitude);
+        return distA.delta - distB.delta;
+      } else {
+        // alphabetical
+        if (a < b) {
+          return -1;
+        } else if (b < a) {
+          return 1;
+        } else {
+          return 0;
+        }
+      }
+    });
+    orderedKeys.forEach(key => {
+      let seisArray = seisMap.get(key);
+      
+      if ( ! seisArray || seisArray.length === 0) {
+        console.log(`empty for ${key} `);
+        return;
+      }
       let seisGraph;
       if (this.get('isOverlay')) {
         seisGraph = seischartList[0];
@@ -162,7 +185,7 @@ console.log(`updat4Graph: channel: ${this.get('channel')}`);
         seisGraph.draw();
         d3.select('#'+elementId).select("div").select(".seismogramInnerDiv").select("div").select("h5").text(key);
       }
-    })
+    });
   },
   initSeisChart: function(mseedRecords, title, sharedXScale) {
     let elementId = this.get('elementId');
