@@ -11,6 +11,7 @@ export default Service.extend({
 
   },
   load(channel, startTime, endTime) {
+    if ( ! channel) { return;}
     if ( ! endTime) {
       endTime = moment.utc();
     }
@@ -34,5 +35,10 @@ export default Service.extend({
       .startTime(startTime)
       .endTime(endTime);
     return query.querySeismograms();
+  },
+
+  postQuery(channelTimeList) {
+    const query = new seisplotjs.fdsndataselect.DataSelectQuery();
+    return query.postQuerySeismograms(channelTimeList);
   }
 });
