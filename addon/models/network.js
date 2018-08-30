@@ -4,8 +4,8 @@ import DS from 'ember-data';
 
 export default Model.extend({
   networkCode: DS.attr('string'),
-  startTime: DS.attr('date'),
-  endTime: DS.attr('date'),
+  startTime: DS.attr('moment'),
+  endTime: DS.attr('moment'),
   description: DS.attr('string'),
   stations: DS.hasMany('station', { async: true }),
 
@@ -17,9 +17,9 @@ export default Model.extend({
 console.log(' isTempNet : '+first);
     return first === 'X' || first === 'Y' || first === 'Z';
   }),
-    startYear: computed('startTime', function() {
-        return this.get('startTime').toISOString().substring(0,4);
-    }),
+  startYear: computed('startTime', function() {
+      return this.get('startTime').toISOString().substring(0,4);
+  }),
   startTimeUTC: computed('startTime', function() {
     var s = this.get('startTime');
     if(s === null) {
@@ -34,5 +34,9 @@ console.log(' isTempNet : '+first);
     } else {
       return this.get('endTime').toISOString();
     }
-  })
+  }),
+  activeAt: function(moment) {
+    return this.get('startTime').isBefore(moment)
+      && ( ! this.get('endTime') || this.get('endTime').isAfter(moment));
+  },
 });

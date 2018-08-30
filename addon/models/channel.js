@@ -8,8 +8,8 @@ export default Model.extend({
   station: DS.belongsTo('station', {async: true}),
   name: DS.attr('string'),
   description: DS.attr('string'),
-  startTime: DS.attr('date'),
-  endTime: DS.attr('date'),
+  startTime: DS.attr('moment'),
+  endTime: DS.attr('moment'),
   latitude: DS.attr('number'),
   longitude: DS.attr('number'),
   elevation: DS.attr('number'),
@@ -44,5 +44,10 @@ export default Model.extend({
   }.property('stationCode',
              'networkCode',
              'locationCode',
-             'channelCode')
+             'channelCode'),
+
+   activeAt: function(moment) {
+     return this.get('startTime').isBefore(moment)
+      && ( ! this.get('endTime') || this.get('endTime').isAfter(moment));
+   },
 });
