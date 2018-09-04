@@ -30,7 +30,7 @@ export default Component.extend({
   channels: [],
   quake: null,
   seischartList: [],
-
+  distAzMap: new Map(),
   layout,
 
   didInsertElement() {
@@ -130,12 +130,16 @@ console.log(`updat4Graph: channel: ${this.get('channel')}`);
     if (seischartList.length != 0) {
       sharedXScale = seischartList[0].xScale;
     }
+    for (let c of seisMap.keys()) {
+      let chan = that.channelMap.get(c);
+      this.distAzMap.set(c, seisplotjs.distaz.distaz(chan.latitude, chan.longitude, that.quake.latitude, that.quake.longitude));
+    }
     let orderedKeys = Array.from(seisMap.keys()).sort((a,b) => {
       let chanA = that.channelMap.get(a);
       let chanB = that.channelMap.get(b);
       if (chanA && chanB && that.quake) {
-        let distA = seisplotjs.distaz.distaz(chanA.latitude, chanA.longitude, that.quake.latitude, that.quake.longitude);
-        let distB = seisplotjs.distaz.distaz(chanB.latitude, chanB.longitude, that.quake.latitude, that.quake.longitude);
+        let distA = that.distAzMap.get(a);
+        let distB = that.distAzMap.get(b);
         return distA.delta - distB.delta;
       } else {
         // alphabetical
@@ -169,13 +173,14 @@ console.log(`updat4Graph: channel: ${this.get('channel')}`);
           if (Array.isArray(seisGraph.title)) {
             seisGraph.setTitle(seisGraph.title.push(key));
           } else {
-            seisGraph.setTitle([ seisGraph.title, key ]);
+            seisGraph.setTitle([ seisGraph.title, `${key} (${this.distAzMap.get(key).delta})` ]);
           }
           seisGraph.draw();
         }
       } else {
         // need to create
-        seisGraph = this.initSeisChart(seisArray, key , sharedXScale);
+        let distkm = Math.round(this.distAzMap.get(key).delta*seisplotjs.distaz.kmPerDeg);
+        seisGraph = this.initSeisChart(seisArray, `${key} (${distkm} km)` , sharedXScale);
         this.seischartList.push(seisGraph);
         if (this.channelMap.has(key)) {
           seisGraph.setInstrumentSensitivity(this.channelMap.get(key).instrumentSensitivity);
