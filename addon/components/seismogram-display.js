@@ -54,7 +54,6 @@ export default Component.extend({
     this.seischartList.forEach( sg => sg.draw());
   },
 
-
   updateGraph() {
     console.log("updat4Graph: ");
     const that = this;
@@ -151,7 +150,7 @@ console.log(`updat4Graph: channel: ${this.get('channel')}`);
     });
     orderedKeys.forEach(key => {
       let seisArray = seisMap.get(key);
-      
+
       if ( ! seisArray || seisArray.length === 0) {
         console.log(`empty for ${key} `);
         return;
@@ -173,7 +172,6 @@ console.log(`updat4Graph: channel: ${this.get('channel')}`);
             seisGraph.setTitle([ seisGraph.title, key ]);
           }
           seisGraph.draw();
-          d3.select('#'+elementId).select("div").select(".seismogramInnerDiv").select("div").select("h5").text(key);
         }
       } else {
         // need to create
@@ -183,7 +181,6 @@ console.log(`updat4Graph: channel: ${this.get('channel')}`);
           seisGraph.setInstrumentSensitivity(this.channelMap.get(key).instrumentSensitivity);
         }
         seisGraph.draw();
-        d3.select('#'+elementId).select("div").select(".seismogramInnerDiv").select("div").select("h5").text(key);
       }
     });
   },
