@@ -10,7 +10,7 @@ export default Model.extend({
   stations: DS.hasMany('station', { async: true }),
 
   isActive: function() {
-    return ! this.get('endTime').isBefore(Date.now());
+    return ! this.get('endTime') || ! this.get('endTime').isBefore(moment.utc());
   }.property('endTime'),
   isTempNet: computed('networkCode', function() {
     var first = this.get('networkCode').charAt(0);
@@ -35,8 +35,9 @@ console.log(' isTempNet : '+first);
       return this.get('endTime').toISOString();
     }
   }),
-  activeAt: function(moment) {
-    return this.get('startTime').isBefore(moment)
-      && ( ! this.get('endTime') || this.get('endTime').isAfter(moment));
+  activeAt: function(when) {
+    if ( ! when) {when = moment.utc();}
+    return this.get('startTime').isBefore(when)
+      && ( ! this.get('endTime') || this.get('endTime').isAfter(when));
   },
 });

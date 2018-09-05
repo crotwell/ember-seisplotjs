@@ -1,5 +1,6 @@
 import Model from 'ember-data/model';
 import DS from 'ember-data';
+import moment from 'moment';
 
 export default Model.extend({
   stationCode: DS.attr('string'),
@@ -14,7 +15,7 @@ export default Model.extend({
   elevation: DS.attr('number'),
 
   isActive: function() {
-    return ! this.get('endTime').isBefore(Date.now());
+    return ! this.get('endTime') || ! this.get('endTime').isBefore(moment.utc());
   }.property('endTime'),
   latitudeFormatted:  function() {
      return this.get('latitude').toFixed(2);
@@ -28,8 +29,9 @@ export default Model.extend({
   codes: function() {
     return this.get('networkCode')+"."+this.get('stationCode');
   }.property('stationCode', 'networkCode'),
-  activeAt: function(moment) {
-    return this.get('startTime').isBefore(moment)
-      && ( ! this.get('endTime') || this.get('endTime').isAfter(moment));
+  activeAt: function(when) {
+    if ( ! when) { when = moment.utc();}
+    return this.get('startTime').isBefore(when)
+      && ( ! this.get('endTime') || this.get('endTime').isAfter(when));
   },
 });
