@@ -32,59 +32,35 @@ export default DS.JSONAPISerializer.extend({
     }
   },
   normalize(modelClass, resourceHash) {
-    //console.log(`FDSNEventSerializer normalize ${modelClass.modelName}`);
+    console.log(`FDSNEventSerializer normalize ${modelClass.modelName}`);
     if (modelClass.modelName === "quake") {
       return this.normalizeQuake(resourceHash);
-    } else if (modelClass.modelName === "station") {
-      if ( ! net.stations() || net.stations().length != 1) {
-        throw new Error("unable to normalize station, not single station: "+net.stations().length);
-      }
-      let out = this.normalizeStation(net.stations()[0]);
-      out.included.push(this.normalizeNetwork(net).data);
-      return out;
-    } else if (modelClass.modelName === "channel") {
-      if ( ! net.stations() || net.stations().length != 1) {
-        throw new Error("unable to normalize channel, not single station: "+net.stations().length);
-      }
-      let sta = net.stations()[0];
-      if ( ! sta || sta.channels().length != 1) {
-        throw new Error("unable to normalize channel, not single channel: "+sta.channels().length);
-      }
-      let out = this.normalizeChannel(sta.channels()[0]);
-      out.included.push(this.normalizeNetwork(net).data);
-      out.included.push(this.normalizeStation(sta).data);
-      return out;
-    } else if (modelClass.modelName === "response") {
-      if ( ! net.stations() || net.stations().length != 1) {
-        throw new Error("unable to normalize channel, not single station: "+net.stations());
-      }
-      let sta = net.stations()[0];
-      if ( ! sta || sta.channels().length != 1) {
-        throw new Error("resp unable to normalize channel, not single channel: "+sta.channels().length);
-      }
-      let out = this.normalizeChannelResponse(sta.channels()[0].response(), sta.channels()[0].createId());
-      out.included.push(this.normalizeNetwork(net).data);
-      out.included.push(this.normalizeStation(sta).data);
-      out.included.push(this.normalizeChannel(sta.channels()[0]).data);
-      return out;
+    } else if (modelClass.modelName === "origin") {
+      return this.normalizePick(resourceHash);
+    } else if (modelClass.modelName === "pick") {
+      return this.normalizePick(resourceHash);
+    } else if (modelClass.modelName === "arrival") {
+      return this.normalizePick(resourceHash);
     }
-    throw new Error("fdsnstation serializer unknown type to normalize: "+resourceHash.id
+    throw new Error("fdsnevent serializer unknown type to normalize: "+resourceHash.id
       +" "+modelClass.modelName);
   },
   normalizeQuake(quake) {
+    console.log("normalizeQuake");
     let quakeId = this.createQuakeId(quake);
     const data = {
       id: quakeId,
       type: 'quake',
       attributes: {
-          eventid: quake.eventid,
-          publicID: quake.publicID,
+          eventId: quake.eventId,
+          publicId: quake.publicId,
           time: quake.time,
           latitude: quake.latitude,
           longitude: quake.longitude,
           depth: quake.depth,
           description: quake.description,
-          preferredMagnitudeID: quake.preferredMagnitudeID,
+          preferredMagnitudeId: quake.preferredMagnitudeId,
+          preferredOriginId: quake.preferredOriginId,
       },
       relationships: {
         magnitudes: {
@@ -96,17 +72,96 @@ export default DS.JSONAPISerializer.extend({
     };
     const included = [];
     if (quake.magnitude) {
-        const magNorm = this.normalizeMagnitude(quake.magnitude, quakeId).data;
-        included.push(magNorm);
+        const magNorm = this.normalizeMagnitude(quake.magnitude, quakeId);
+        included.push(magNorm.data);
 
         data.relationships.prefMagnitude = {
           data: {
-            id: magNorm.id,
-            type: magNorm.type,
+            id: magNorm.data.id,
+            type: magNorm.data.type,
             }
           };
     }
+    if (quake.preferredOrigin) {
+      let normOrigin = this.normalizeOrigin(quake.preferredOrigin);
+      included.push(normOrigin.data);
+      data.relationships.preferredOrigin = {
+        data: {
+          id: normOrigin.data.id,
+          type: normOrigin.data.type,
+          }
+        };
+      for(let i of normOrigin.included) {
+        included.push(i);
+      }
+    } else {
+      console.log("No pref origin");
+    }
+    if (quake.pickList) {
+    console.log(`quake has pickList ${quake.pickList.length}`);
+      let pList = [];
+      data.relationships.pickList = {
+        data: pList,
+      };
+      for (let p of quake.pickList) {
+        let normPick = this.normalizePick(p, quakeId);
+        included.push(normPick.data);
+        pList.push({
+            id: normPick.data.id,
+            type: normPick.data.type,
+          });
+        for(let i of normPick.included) {
+          included.push(i);
+        }
+      }
+    }
     let out = { data: data, included: included };
+    //console.log("Quake as jsonapi: "+JSON.stringify(out, null, 2));
+    return out;
+  },
+  normalizeOrigin(origin, quakeId) {
+    const data = {
+      id: this.createOriginId(origin),
+      type: 'origin',
+      attributes: {
+        publicId: origin.publicId,
+        time: origin.time,
+        latitude: origin.latitude,
+        longitude: origin.longitude,
+        depth: origin.depth,
+      },
+      relationships: {
+        quake: {
+          data: {
+            type: 'quake',
+            id: quakeId,
+          }
+        }
+      }
+    };
+
+    const included = [];
+    if (origin.arrivalList) {
+      console.log(`fdsnevent serializer spjsOrigin has arrivals ${origin.arrivalList.length}`);
+      let aList = [];
+      data.relationships.arrivalList = {
+        data: aList
+      };
+      for (let a of origin.arrivalList) {
+        let normArrival = this.normalizeArrival(a, data.id);
+        included.push(normArrival.data);
+        aList.push({
+            id: normArrival.data.id,
+            type: normArrival.data.type,
+          });
+        for(let i of normArrival.included) {
+          included.push(i);
+        }
+      }
+    } else {
+      console.log("fdsnevent serializer spjsOrigin has no arrivalList");
+    }
+    const out = { data: data, included: included };
     return out;
   },
   normalizeMagnitude(mag, quakeId) {
@@ -116,6 +171,62 @@ export default DS.JSONAPISerializer.extend({
       attributes: {
         mag: mag.mag,
         type: mag.type,
+      },
+      relationships: {
+        quake: {
+          data: {
+            type: 'quake',
+            id: quakeId,
+          }
+        }
+      }
+    };
+    const included = [];
+    const out = { data: data, included: included };
+    return out;
+  },
+  normalizeArrival(arrival, originId) {
+    const data = {
+      id: this.createArrivalId(arrival),
+      type: 'arrival',
+      attributes: {
+        phase: arrival.phase,
+        publicId: arrival.publicId,
+      },
+      relationships: {
+        origin: {
+          data: {
+            type: 'origin',
+            id: originId,
+          }
+        },
+      }
+    };
+    const included = [];
+    if (arrival.pick) {
+      let pickNorm = this.normalizePick(arrival.pick, data.id);
+      included.push(pickNorm.data);
+      data.relationships.pick = {
+        data: {
+          id: pickNorm.data.id,
+          type: pickNorm.data.type,
+          }
+        };
+    }
+    const out = { data: data, included: included };
+    return out;
+  },
+  normalizePick(pick, quakeId) {
+    const data = {
+      id: this.createPickId(pick),
+      type: 'pick',
+      attributes: {
+        time: pick.time,
+        networkCode: pick.networkCode,
+        stationCode: pick.stationCode,
+        locationCode: pick.locationCode,
+        channelCode: pick.channelCode,
+        publicId: pick.publicId,
       },
       relationships: {
         quake: {
@@ -150,16 +261,19 @@ export default DS.JSONAPISerializer.extend({
     return json;
   },
   createQuakeId: function(spjsQuake) {
-    return spjsQuake.eventid;
+    return spjsQuake.eventId;
   },
-  createOriginId: function(spjsStation) {
-    return this.createNetworkId(spjsStation.network())
-      +"."+spjsStation.stationCode()
-      +"_"+spjsStation.startDate().toISOString();
+  createOriginId: function(spjsOrigin) {
+    return spjsOrigin.publicId;
   },
   createMagnitudeId: function(spjsMag) {
-  console.log(`createMagnitudeId ${spjsMag} ${spjsMag.publicID}`);
-    return spjsMag.publicID;
+    return spjsMag.publicId;
+  },
+  createArrivalId: function(spjsArrival) {
+    return spjsArrival.publicId;
+  },
+  createPickId: function(spjsPick) {
+    return spjsPick.publicId;
   },
   QUAKE_MAG_URL: "seisplotjs:quake.magURL",
   QUAKE_PICK_URL: "seisplotjs:quake.pickURL",

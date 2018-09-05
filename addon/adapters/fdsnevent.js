@@ -11,7 +11,7 @@ export default DS.Adapter.extend({
   findRecord(store, type, id, snapshot) {
     const modelName = type.modelName;
     if (type.modelName != "quake") {
-      throw new Error("can only do quake");
+      throw new Error(`can only do quake: ${type.modelName} id: ${id}`);
     }
     console.log("FDSNEvent adapter findRecord modelName: "+modelName+" id: "+id);
     //let protocol = this.findProtocol();
@@ -20,12 +20,13 @@ export default DS.Adapter.extend({
     let protocol = "https:";
     let query = new seisplotjs.fdsnevent.EventQuery()
       .protocol(protocol)
-      .eventid(id);
+      .eventId(id)
+      .includeArrivals(true);
     return query.query().then(quakeArray => {
       if (quakeArray.length == 1) {
         return quakeArray[0];
       } else {
-        throw new Error(`Query for eventid=${id} returned no quake.`);
+        throw new Error(`Query for eventId=${id} returned no quake.`);
       }
     });
   },
@@ -46,7 +47,7 @@ export default DS.Adapter.extend({
     if (query.host) { eventQuery.host(query.host);}
     if (query.nodata) { eventQuery.nodata(query.nodata);}
 
-    if (query.eventid) { eventQuery.eventid(query.eventid);}
+    if (query.eventId) { eventQuery.eventId(query.eventId);}
     if (query.startTime) { eventQuery.startTime(query.startTime);}
     if (query.endTime) { eventQuery.endTime(query.endTime);}
     if (query.updatedAfter) { eventQuery.updatedAfter(query.updatedAfter);}

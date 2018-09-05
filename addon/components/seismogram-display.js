@@ -6,15 +6,11 @@ import { inject as service } from '@ember/service';
 import { computed } from "@ember/object";
 import { getOwner } from "@ember/application";
 import seisplotjs from 'ember-seisplotjs';
-//import FdsnDataSelect from '../utils/fdsndataselect';
 import moment from 'moment';
 
 let miniseed = seisplotjs.miniseed;
 let waveformplot = seisplotjs.waveformplot;
 let d3 = waveformplot.d3;
-//let fdsnDataSelect = new FdsnDataSelect();
-
-//console.log("fdsndataselect from import: "+FdsnDataSelect);
 
 
 export default Component.extend({
@@ -55,16 +51,13 @@ export default Component.extend({
   },
 
   updateGraph() {
-    console.log("updat4Graph: ");
     const that = this;
     this.seischartList = [];
     let elementId = this.get('elementId');
     d3.select('#'+elementId).select("div.seismogramInnerDiv").selectAll("div").remove();
-console.log(`updat4Graph: channel: ${this.get('channel')}`);
     if (this.seismogramMap) {
       that.appendWaveformMap(this.seismogramMap);
     } else if (this.get('channel')) {
-      console.log("got channel for seis display");
       this.channelMap.set(this.get('channel').codes, this.channel);
       //const ds = fdsnDataSelect;
       if (this.get('quake')) {
@@ -122,7 +115,6 @@ console.log(`updat4Graph: channel: ${this.get('channel')}`);
   },
 
   appendWaveformMap: function(seisMap) {
-    console.log(`appendWaveformMap: ${seisMap.size} chan${this.channelMap.size}`);
     let that = this;
     let elementId = this.get('elementId');
     let seischartList = that.get('seischartList');
@@ -184,6 +176,17 @@ console.log(`updat4Graph: channel: ${this.get('channel')}`);
         this.seischartList.push(seisGraph);
         if (this.channelMap.has(key)) {
           seisGraph.setInstrumentSensitivity(this.channelMap.get(key).instrumentSensitivity);
+        }
+        if (this.get('quake')) {
+          let markers = [];
+          this.get('quake').preferredOrigin.get('arrivalList').forEach(arrival => {
+            let p = arrival.pick;
+            let chanCodes = `${p.get(`networkCode`)}.${p.get('stationCode')}.${p.get('locationCode')}.${p.get('channelCode')}`;
+            if (chanCodes === key) {
+              markers.push({ markertype: 'pick', name: arrival.phase, time: arrival.pick.get('time') });
+            }
+          });
+          seisGraph.appendMarkers(markers);
         }
         seisGraph.draw();
       }
@@ -272,23 +275,19 @@ console.log(`updat4Graph: channel: ${this.get('channel')}`);
       this.drawPhases();
     }),
     overlayObserver: observer('isOverlay', function() {
-    console.log("overlayObserver set to "+this.isOverlay);
       this.updateGraph();
     }),
     rotateObserver: observer('isRotateGCP', function() {
-    console.log("rotateObserver set to "+this.isRotateGCP);
       this.updateGraph();
     }),
     rMeanObserver: observer('isRMean', function() {
         let seischartList = this.get('seischartList');
-        console.log("rMeanObserver set to "+this.isRMean);
         for (let graph of seischartList) {
           graph.setDoRMean(this.isRMean);
         }
     }),
     gainObserver: observer('isGain', function() {
         let seischartList = this.get('seischartList');
-        console.log("gainObserver set to "+this.isGain);
         for (let graph of seischartList) {
           graph.setDoGain(this.isGain);
         }
