@@ -13,7 +13,7 @@ export default DS.Adapter.extend({
     if (type.modelName != "quake") {
       throw new Error(`can only do quake: ${type.modelName} id: ${id}`);
     }
-    console.log("FDSNEvent adapter findRecord modelName: "+modelName+" id: "+id);
+    //console.log("FDSNEvent adapter findRecord modelName: "+modelName+" id: "+id);
     //let protocol = this.findProtocol();
     // usgs redirects to https, so just use that instead of
     // using the current page protocol
@@ -31,7 +31,7 @@ export default DS.Adapter.extend({
     });
   },
   query(store, type, query) {
-    console.log(`quake adapter query ${type.modelName}`);
+    //console.log(`quake adapter query ${type.modelName}`);
 
     if (type.modelName != "quake") {
       throw new Error("can only do quake");
@@ -90,24 +90,24 @@ export default DS.Adapter.extend({
   createRecord(store, type, snapshot) {throw new Error("fdsnstation is read-only, create not allowed.");},
   deleteRecord(store, type, snapshot) {throw new Error("fdsnstation is read-only, delete not allowed.");},
   findHasMany(store, snapshot, link, relationship) {
-    console.log("findHasMany: "+relationship.type+" "+relationship.kind+" "+link+" "+snapshot.id+" "+snapshot.modelName);
+    //console.log("findHasMany: "+relationship.type+" "+relationship.kind+" "+link+" "+snapshot.id+" "+snapshot.modelName);
     throw new Error("No impl findHasMany ");
     if (snapshot.modelName === 'network' && relationship.type === 'station') {
-      console.log('findHasMany: '+snapshot.record.get('networkCode'));
+      //console.log('findHasMany: '+snapshot.record.get('networkCode'));
       let stationQuery = new seisplotjs.fdsnstation.StationQuery()
         .protocol(this.findProtocol())
         .networkCode(snapshot.record.get('networkCode'))
         .startTime(snapshot.record.get('startTime'));
-        console.log("findHasMany url: "+stationQuery.formURL(seisplotjs.fdsnstation.LEVEL_STATION))
+        //console.log("findHasMany url: "+stationQuery.formURL(seisplotjs.fdsnstation.LEVEL_STATION))
       return stationQuery.queryStations();
     } else if (snapshot.modelName === 'station' && relationship.type === 'channel') {
-      console.log('findHasMany: '+snapshot.record.get('codes'));
+      //console.log('findHasMany: '+snapshot.record.get('codes'));
       let stationQuery = new seisplotjs.fdsnstation.StationQuery()
         .protocol(this.findProtocol())
         .networkCode(snapshot.record.get('networkCode'))
         .stationCode(snapshot.record.get('stationCode'))
         .startTime(snapshot.record.get('startTime'));
-        console.log("findHasMany url: "+stationQuery.formURL(seisplotjs.fdsnstation.LEVEL_CHANNEL))
+        //console.log("findHasMany url: "+stationQuery.formURL(seisplotjs.fdsnstation.LEVEL_CHANNEL))
       return stationQuery.queryChannels();
     } else {
       throw new Error("Unknown model and relationship: "+snapshot.modelName+" "+relationship.type+" "+link);
