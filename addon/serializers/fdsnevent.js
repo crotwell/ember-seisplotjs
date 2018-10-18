@@ -5,7 +5,7 @@ import moment from 'moment';
 
 export default DS.JSONAPISerializer.extend({
   normalizeResponse(store, primaryModelClass, payload, id, requestType) {
-    console.log(`FDSNEventSerializer normalizeResponse ${requestType} ${primaryModelClass.modelName}`);
+    // console.log(`FDSNEventSerializer normalizeResponse ${requestType} ${primaryModelClass.modelName}`);
     if (requestType === 'findRecord') {
       return this.normalize(primaryModelClass, payload);
     } else if (requestType === 'findHasMany') {
@@ -32,7 +32,7 @@ export default DS.JSONAPISerializer.extend({
     }
   },
   normalize(modelClass, resourceHash) {
-    console.log(`FDSNEventSerializer normalize ${modelClass.modelName}`);
+    // console.log(`FDSNEventSerializer normalize ${modelClass.modelName}`);
     if (modelClass.modelName === "quake") {
       return this.normalizeQuake(resourceHash);
     } else if (modelClass.modelName === "origin") {
@@ -46,7 +46,7 @@ export default DS.JSONAPISerializer.extend({
       +" "+modelClass.modelName);
   },
   normalizeQuake(quake) {
-    console.log("normalizeQuake");
+    // console.log("normalizeQuake");
     let quakeId = this.createQuakeId(quake);
     const data = {
       id: quakeId,
@@ -98,7 +98,7 @@ export default DS.JSONAPISerializer.extend({
       console.log("No pref origin");
     }
     if (quake.pickList) {
-    console.log(`quake has pickList ${quake.pickList.length}`);
+    // console.log(`quake has pickList ${quake.pickList.length}`);
       let pList = [];
       data.relationships.pickList = {
         data: pList,
@@ -142,7 +142,7 @@ export default DS.JSONAPISerializer.extend({
 
     const included = [];
     if (origin.arrivalList) {
-      console.log(`fdsnevent serializer spjsOrigin has arrivals ${origin.arrivalList.length}`);
+      // console.log(`fdsnevent serializer spjsOrigin has arrivals ${origin.arrivalList.length}`);
       let aList = [];
       data.relationships.arrivalList = {
         data: aList
