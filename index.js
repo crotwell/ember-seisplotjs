@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  name: 'ember-seisplotjs',
+  name: require('./package').name,
 
   isDevelopingAddon() {
     return true;
