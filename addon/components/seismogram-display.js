@@ -156,7 +156,7 @@ export default Component.extend({
         seisGraph = seischartList[0];
       } else {
         seisGraph = seischartList.find( graph => {
-          return graph.segments[0].codes() === key;
+          return graph.traces[0].codes() === key;
         })
       }
       if (seisGraph ){
@@ -173,6 +173,7 @@ export default Component.extend({
         // need to create
         let distkm = Math.round(this.distAzMap.get(key).delta*seisplotjs.distaz.kmPerDeg);
         seisGraph = this.initSeisChart(seisArray, `${key} (${distkm} km)` , sharedXScale);
+      //  if ( ! sharedXScale) { sharedXScale = seisGraph.xScale;}
         this.seischartList.push(seisGraph);
         if (this.channelMap.has(key)) {
           seisGraph.setInstrumentSensitivity(this.channelMap.get(key).instrumentSensitivity);
@@ -202,13 +203,16 @@ export default Component.extend({
     let startEndDates = this.calcStartEnd(mseedRecords, this.get('cookiejar'));
     titleDiv.append("h5").text(title);
     let svgDiv = titleDiv.append("div").classed("waveformPlot", true);
-    let seischart = new waveformplot.Seismograph(svgDiv, mseedRecords, startEndDates.start, startEndDates.end);
+    svgDiv.style("width", "100%");
+    svgDiv.style("height", "450px");
+    let seisConfig = new waveformplot.SeismographConfig();
+    let seischart = new waveformplot.CanvasSeismograph(svgDiv, seisConfig, mseedRecords, startEndDates.start, startEndDates.end);
     if (sharedXScale) {
       seischart.xScale = sharedXScale;
     }
     seischart.setDoRMean(this.isRMean);
     seischart.setDoGain(this.isGain);
-    seischart.setTitle( [ title ] );
+    seisConfig.title = title;
     seischart.scaleChangeListeners.push(this);
     this.seischartList.push(seischart);
     seischart.disableWheelZoom();
@@ -330,5 +334,8 @@ export default Component.extend({
             seischartList[cNum].resetZoom();
         }
       },
+      addPhase() {
+        this.get('phases').push()
+      }
     }
 });
