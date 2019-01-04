@@ -9,6 +9,7 @@
   <label>{{input type="checkbox" name="rotate" checked=isRotateGCP }}<span class="checkable">Rotate GCP</span></label>
   <label>{{input type="checkbox" name="rmean" checked=isRMean }}<span class="checkable">Remove Mean</span></label>
   <label>{{input type="checkbox" name="gain" checked=isGain }}<span class="checkable">Gain</span></label>
+  <label><button {{action "addPhase"}} >Add Phase:</button>{{input type="text" name="addphase" checked=isGain }}</label>
   <div class="seismogramInnerDiv">
   </div>
 </div>
