@@ -17,7 +17,7 @@ export default Component.extend({
   fdsnDataSelect: service(),
   travelTime: service(),
   seismogramMap: null,
-  channelMap: null,
+  channelMap: new Map(),
   phases: null,
   isOverlay: false,
   isRotateGCP: false,
@@ -122,9 +122,11 @@ export default Component.extend({
     if (seischartList.length != 0) {
       sharedXScale = seischartList[0].xScale;
     }
-    for (let c of seisMap.keys()) {
-      let chan = that.channelMap.get(c);
-      this.distAzMap.set(c, seisplotjs.distaz.distaz(chan.latitude, chan.longitude, that.quake.latitude, that.quake.longitude));
+    if (this.quake) {
+      for (let c of seisMap.keys()) {
+        let chan = that.channelMap.get(c);
+        this.distAzMap.set(c, seisplotjs.distaz.distaz(chan.latitude, chan.longitude, that.quake.latitude, that.quake.longitude));
+      }
     }
     let orderedKeys = Array.from(seisMap.keys()).sort((a,b) => {
       let chanA = that.channelMap.get(a);
@@ -171,8 +173,14 @@ export default Component.extend({
         }
       } else {
         // need to create
-        let distkm = Math.round(this.distAzMap.get(key).delta*seisplotjs.distaz.kmPerDeg);
-        seisGraph = this.initSeisChart(seisArray, `${key} (${distkm} km)` , sharedXScale);
+        let title;
+        if (this.distAzMap.get(key)) {
+          let distkm = Math.round(this.distAzMap.get(key).delta*seisplotjs.distaz.kmPerDeg);
+          title = `${key} (${distkm} km)`;
+        } else {
+          title = key;
+        }
+        seisGraph = this.initSeisChart(seisArray, title , sharedXScale);
       //  if ( ! sharedXScale) { sharedXScale = seisGraph.xScale;}
         this.seischartList.push(seisGraph);
         if (this.channelMap.has(key)) {
