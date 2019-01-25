@@ -20,7 +20,9 @@ export default Component.extend({
   channelMap: new Map(),
   phases: null,
   isOverlay: false,
+  showOverlay: false,
   isRotateGCP: false,
+  showRotateGCP: false,
   isRMean: true,
   isGain: true,
   channels: [],
@@ -230,13 +232,13 @@ export default Component.extend({
   drawPhases: function() {
       let that = this;
       return RSVP.hash({
-        seisChartListHash: this.get('seischartList'),
-        phaseHash: this.get('phases'),
-        quakeHash: that.get('quake'),
-        stationHash: that.get('station').get('network')
-      }).then( () => {
+        seisChartList: this.get('seischartList'),
+        phases: this.get('phases'),
+        quake: that.get('quake'),
+        station: that.get('station'),
+      }).then( (hash) => {
         let seischartList = this.get('seischartList');
-        if ( ! that.get('phases') || ! that.get('quake') || ! that.get('station') || ! that.get('station').get('network')) {
+        if ( ! hash.phases || ! hash.quake || ! hash.station ) {
           // only overlay arrivals if we have quake, station and phases
           // but do delete old markers
           for (let cNum=0; cNum < seischartList.length; cNum++) {
@@ -244,7 +246,7 @@ export default Component.extend({
           }
           return;
         }
-        let phaseList = that.get('phases').split(',');
+        let phaseList = hash.phases.split(',');
         let onlyFirstP = phaseList.find(p => p === 'firstP');
         let onlyFirstS = phaseList.find(p => p === 'firstS');
         if (onlyFirstP) {
@@ -255,7 +257,7 @@ export default Component.extend({
           phaseList = phaseList.filter(p => p != 'firstS')
               .concat(['S', 's', 'Sdiff', 'SKS', 'SKIKS']);
         }
-        return that.get('travelTime').calcTravelTimes(that.get('quake'), that.get('station'), "prem", phaseList.join())
+        return that.get('travelTime').calcTravelTimes(hash.quake, hash.station, "prem", phaseList.join())
           .then(function(json) {
             if (onlyFirstP) {
               let firstPArrival = json.included.find(a => a.attributes.phasename.startsWith('P') || a.attributes.phasename.startsWith('p'));
