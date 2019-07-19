@@ -1,4 +1,5 @@
 import Model from 'ember-data/model';
+import { computed } from '@ember/object';
 import DS from 'ember-data';
 import moment from 'moment';
 
@@ -22,30 +23,30 @@ export default Model.extend({
   instrumentSensitivity: DS.attr(),
   response: DS.belongsTo('response'),
 
-  isActive: function() {
-    return ! this.get('endTime') || ! this.get('endTime').isBefore(moment.utc());
-  }.property('endTime'),
-  latitudeFormatted:  function() {
+  isActive: computed('endTime', function() {
+      return ! this.get('endTime') || ! this.get('endTime').isBefore(moment.utc());
+    }),
+  latitudeFormatted: computed('latitude', function() {
      return this.get('latitude').toFixed(2);
-  }.property('latitude'),
-  longitudeFormatted:  function() {
+  }),
+  longitudeFormatted: computed('longitude', function() {
      return this.get('longitude').toFixed(2);
-  }.property('longitude'),
-  networkCode: function() {
+  }),
+  networkCode: computed('station', function() {
     return this.get('station').get('networkCode');
-  }.property('station'),
-  stationCode: function() {
+  }),
+  stationCode: computed('station', function() {
     return this.get('station').get('stationCode');
-  }.property('station'),
-  codes: function() {
+  }),
+  codes: computed('stationCode',
+             'networkCode',
+             'locationCode',
+             'channelCode', function() {
     return this.get('networkCode')
       +"."+this.get('stationCode')
       +"."+this.get('locationCode')
       +"."+this.get('channelCode');
-  }.property('stationCode',
-             'networkCode',
-             'locationCode',
-             'channelCode'),
+  }),
 
    activeAt: function(when) {
      if ( ! when) {when = moment.utc();}

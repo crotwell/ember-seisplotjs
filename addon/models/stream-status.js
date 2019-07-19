@@ -1,7 +1,7 @@
 import Model from 'ember-data/model';
+import { computed } from '@ember/object';
 import DS from 'ember-data';
 import moment from 'moment';
-import humanize from 'ember-moment/computeds/humanize';
 
 export default Model.extend({
   key: DS.attr('string'),
@@ -10,10 +10,10 @@ export default Model.extend({
   earliest: DS.attr('utc'),
   latest: DS.attr('utc'),
   accessTime: DS.attr('utc'),
-  latency: function() {
+  latency: computed('latest', 'accessTime', function() {
     return moment.duration(this.get('latest').diff(this.get('accessTime')));
-  }.property('latest', 'accessTime'),
-  latencyHumanize: function() {
+  }),
+  latencyHumanize: computed('latency', function() {
     return this.get('latency').humanize();
-  }.property('latency'),
+  }),
 });

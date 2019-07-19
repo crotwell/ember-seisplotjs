@@ -3,15 +3,15 @@
   {{yield}}
   <button {{action "resetZoom"}} >ResetZoom</button>
   {{#if showOverlay}}
-  <label>{{input type="checkbox" name="overlay" checked=isOverlay }}<span class="checkable">Overlay</span></label>
+    <label>{{input type="checkbox" name="overlay" checked=isOverlay }}<span class="checkable">Overlay</span></label>
   {{/if}}
   {{#if showRotateGCP}}
-  <label>{{input type="checkbox" name="rotate" checked=isRotateGCP }}<span class="checkable">Rotate GCP</span></label>
+    <label>{{input type="checkbox" name="rotate" checked=isRotateGCP }}<span class="checkable">Rotate GCP</span></label>
   {{/if}}
   <label>{{input type="checkbox" name="rmean" checked=isRMean }}<span class="checkable">Remove Mean</span></label>
   <label>{{input type="checkbox" name="gain" checked=isGain }}<span class="checkable">Gain</span></label>
   {{#if false}}
-  <label><button {{action "addPhase"}} >Show Phases:</button>{{input type="text" value=this.phases}}</label>
+    <label><button {{action "addPhase"}} >Show Phases:</button>{{input type="text" value=this.phases}}</label>
   {{/if}}
   <div class="seismogramInnerDiv">
   </div>

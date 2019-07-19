@@ -1,6 +1,7 @@
 import { computed } from '@ember/object';
 import Model from 'ember-data/model';
 import DS from 'ember-data';
+import moment from 'moment';
 
 export default Model.extend({
   networkCode: DS.attr('string'),
@@ -9,12 +10,11 @@ export default Model.extend({
   description: DS.attr('string'),
   stations: DS.hasMany('station', { async: true }),
 
-  isActive: function() {
+  isActive: computed('endTime', function() {
     return ! this.get('endTime') || ! this.get('endTime').isBefore(moment.utc());
-  }.property('endTime'),
+  }),
   isTempNet: computed('networkCode', function() {
     var first = this.get('networkCode').charAt(0);
-console.log(' isTempNet : '+first);
     return first === 'X' || first === 'Y' || first === 'Z';
   }),
   startYear: computed('startTime', function() {

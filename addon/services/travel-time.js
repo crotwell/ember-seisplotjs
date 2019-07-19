@@ -1,10 +1,11 @@
 import Service from '@ember/service';
 import findProtocol from '../utils/find-protocol';
 import seisplotjs from 'ember-seisplotjs';
-const moment = seisplotjs.moment;
+import RSVP from 'rsvp';
 
 export default Service.extend({
   init() {
+    this._super(...arguments);
     console.log("travel time service init");
   },
 

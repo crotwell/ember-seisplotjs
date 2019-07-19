@@ -9,8 +9,10 @@ import seisplotjs from 'ember-seisplotjs';
 import moment from 'moment';
 
 let miniseed = seisplotjs.miniseed;
-let waveformplot = seisplotjs.waveformplot;
-let d3 = waveformplot.d3;
+let seismograph = seisplotjs.seismograph;
+const SeismographConfig = seisplotjs.seismographconfig.SeismographConfig;
+const ChannelTimeRange = seisplotjs.fdsndataselect.ChannelTimeRange;
+let d3 = seisplotjs.d3;
 
 
 export default Component.extend({
@@ -29,6 +31,7 @@ export default Component.extend({
   quake: null,
   seischartList: [],
   distAzMap: new Map(),
+  overlayPicks: false,
   layout,
 
   didInsertElement() {
@@ -57,8 +60,8 @@ export default Component.extend({
     this.seischartList = [];
     let elementId = this.get('elementId');
     d3.select('#'+elementId).select("div.seismogramInnerDiv").selectAll("div").remove();
-    if (this.seismogramMap) {
-      that.appendWaveformMap(this.seismogramMap);
+    if (this.chanTRList) {
+      that.appendWaveformMap(this.chanTRList);
     } else if (this.get('channel')) {
       this.channelMap.set(this.get('channel').codes, this.channel);
       //const ds = fdsnDataSelect;
@@ -88,7 +91,7 @@ export default Component.extend({
     }
   },
   loadDataForChannel(channel) {
-    if ( ! channel instanceof seisplotjs.miniseed.model.Channel) {console.log("channel not a channel"); return;}
+    if ( ! channel instanceof seisplotjs.stationxml.Channel) {console.log("channel not a channel"); return;}
     console.log(`loadDataForChannel ${channel} ${channel.id}`);
     const ds = this.get('fdsnDataSelect');
     let seconds = 300;
@@ -100,7 +103,8 @@ export default Component.extend({
     } else {
       seconds = 3600;
     }
-    return ds.load(channel, seconds, moment.utc());
+    let ctr = new ChannelTimeRange(channel, moment.utc().subtract(seconds,'seconds'), moment.utc());
+    return ds.loadTraces([ ctr]);
   },
   loadDataForQuake(quake) {
     travelTime.load(quake, station, phaseList)
@@ -116,7 +120,8 @@ export default Component.extend({
     throw new Error("not yet impl");
   },
 
-  appendWaveformMap: function(seisMap) {
+  appendWaveformMap(chanTRList) {
+    console.log(`appendWaveformMap  ${chanTRList.length}`);
     let that = this;
     let elementId = this.get('elementId');
     let seischartList = that.get('seischartList');
@@ -125,33 +130,34 @@ export default Component.extend({
       sharedXScale = seischartList[0].xScale;
     }
     if (this.quake) {
-      for (let c of seisMap.keys()) {
-        let chan = that.channelMap.get(c);
-        this.distAzMap.set(c, seisplotjs.distaz.distaz(chan.latitude, chan.longitude, that.quake.latitude, that.quake.longitude));
+      for (let [key, chan] of  that.channelMap) {
+        this.distAzMap.set(key, seisplotjs.distaz.distaz(chan.latitude, chan.longitude, that.quake.latitude, that.quake.longitude));
       }
     }
-    let orderedKeys = Array.from(seisMap.keys()).sort((a,b) => {
-      let chanA = that.channelMap.get(a);
-      let chanB = that.channelMap.get(b);
+
+    let orderedChanTRList = chanTRList.sort((a,b) => {
+      let chanA = a.channel;
+      let chanB = b.channel;
       if (chanA && chanB && that.quake) {
-        let distA = that.distAzMap.get(a);
-        let distB = that.distAzMap.get(b);
+        let distA = that.distAzMap.get(chanA.codes());
+        let distB = that.distAzMap.get(chanB.codes());
         return distA.delta - distB.delta;
       } else {
         // alphabetical
-        if (a < b) {
+        if (chanA.codes() < chanB.codes()) {
           return -1;
-        } else if (b < a) {
+        } else if (chanB.codes() < chanA.codes()) {
           return 1;
         } else {
           return 0;
         }
       }
     });
-    orderedKeys.forEach(key => {
-      let seisArray = seisMap.get(key);
+    orderedChanTRList.forEach(ctr => {
+      let key = ctr.channel.codes();
+      let seismogram = ctr.seismogram;
 
-      if ( ! seisArray || seisArray.length === 0) {
+      if ( ! seismogram ) {
         console.log(`empty for ${key} `);
         return;
       }
@@ -160,11 +166,11 @@ export default Component.extend({
         seisGraph = seischartList[0];
       } else {
         seisGraph = seischartList.find( graph => {
-          return graph.traces[0].codes() === key;
+          return graph.getSeismograms()[0].codes() === key;
         })
       }
       if (seisGraph ){
-        seisGraph.append(seisArray);
+        seisGraph.append(seismogram);
         if (this.get('isOverlay')) {
           if (Array.isArray(seisGraph.title)) {
             seisGraph.setTitle(seisGraph.title.push(key));
@@ -182,13 +188,16 @@ export default Component.extend({
         } else {
           title = key;
         }
-        seisGraph = this.initSeisChart(seisArray, title , sharedXScale);
+        seisGraph = this.initSeisChart(seismogram,
+                                       title ,
+                                       sharedXScale,
+                                       ctr.startTime, ctr.endTime);
       //  if ( ! sharedXScale) { sharedXScale = seisGraph.xScale;}
         this.seischartList.push(seisGraph);
         if (this.channelMap.has(key)) {
           seisGraph.setInstrumentSensitivity(this.channelMap.get(key).instrumentSensitivity);
         }
-        if (this.get('quake')) {
+        if (this.overlayPicks && this.get('quake')) {
           let markers = [];
           this.get('quake').preferredOrigin.get('arrivalList').forEach(arrival => {
             let p = arrival.pick;
@@ -199,24 +208,31 @@ export default Component.extend({
           });
           seisGraph.appendMarkers(markers);
         }
+        if (this.phases) {
+          this.drawPhases();
+        }
         seisGraph.draw();
       }
     });
   },
-  initSeisChart: function(mseedRecords, title, sharedXScale) {
+  initSeisChart(seismogram, title, sharedXScale, start, end) {
+    console.log("###### initSeisChart")
     let elementId = this.get('elementId');
     let titleDiv = d3.select('#'+elementId).select("div").select(".seismogramInnerDiv").append("div");
     if ( ! titleDiv) {
       throw new Error("Can't find titleDiv (id = "+elementId+")");
     }
-
-    let startEndDates = this.calcStartEnd(mseedRecords, this.get('cookiejar'));
+    if ( ! (start && end)) {
+      let startEndDates = this.calcStartEnd(seismogram, this.get('cookiejar'));
+      start = startEndDates.start;
+      end = startEndDates.end;
+    }
     titleDiv.append("h5").text(title);
-    let svgDiv = titleDiv.append("div").classed("waveformPlot", true);
+    let svgDiv = titleDiv.append("div").classed("seismograph", true);
     svgDiv.style("width", "100%");
     svgDiv.style("height", "450px");
-    let seisConfig = new waveformplot.SeismographConfig();
-    let seischart = new waveformplot.CanvasSeismograph(svgDiv, seisConfig, mseedRecords, startEndDates.start, startEndDates.end);
+    let seisConfig = new SeismographConfig();
+    let seischart = new seismograph.Seismograph(svgDiv, seisConfig, seismogram, start, end);
     if (sharedXScale) {
       seischart.xScale = sharedXScale;
     }
@@ -229,7 +245,8 @@ export default Component.extend({
     seischart.maxHeight = 300;
     return seischart;
   },
-  drawPhases: function() {
+  drawPhases() {
+    console.log("drawPhases")
       let that = this;
       return RSVP.hash({
         seisChartList: this.get('seischartList'),
@@ -239,6 +256,7 @@ export default Component.extend({
       }).then( (hash) => {
         let seischartList = this.get('seischartList');
         if ( ! hash.phases || ! hash.quake || ! hash.station ) {
+          console.log(`cannot calc phases: ${hash.phases}  ${hash.quake}  ${hash.station}`);
           // only overlay arrivals if we have quake, station and phases
           // but do delete old markers
           for (let cNum=0; cNum < seischartList.length; cNum++) {
@@ -259,6 +277,7 @@ export default Component.extend({
         }
         return that.get('travelTime').calcTravelTimes(hash.quake, hash.station, "prem", phaseList.join())
           .then(function(json) {
+            console.log("##### got travel times")
             if (onlyFirstP) {
               let firstPArrival = json.included.find(a => a.attributes.phasename.startsWith('P') || a.attributes.phasename.startsWith('p'));
               json.included = json.included.filter( a => ! (a.attributes.phasename.startsWith('P') || a.attributes.phasename.startsWith('p')));
@@ -272,11 +291,12 @@ export default Component.extend({
             for (let cNum=0; cNum < seischartList.length; cNum++) {
               let markers = [];
               for (let aNum=0; aNum < json.included.length; aNum++) {
-                let when = new Date(that.get('quake').get('prefOrigin').get('time').getTime()+json.included[aNum].attributes.traveltime*1000);
+                let when = moment.utc(that.get('quake').get('prefOrigin').get('time').getTime()+json.included[aNum].attributes.traveltime*1000);
                 markers.push({ id: json.included[aNum].id,
                                name: json.included[aNum].attributes.phasename,
-                               markertype: 'predicted',
-                               time: when });
+                               type: 'predicted',
+                               time: when,
+                               description: "predicted"});
               }
               // delete old markers
               seischartList[cNum].clearMarkers([]);
@@ -318,7 +338,7 @@ export default Component.extend({
       });
     },
 
-    calcStartEnd: function(segments, cookieJar) {
+    calcStartEnd: function(seismogram, cookieJar) {
       if (cookieJar && cookieJar.request) {
         let out = {
           start: cookieJar.request[0].start,
@@ -334,7 +354,7 @@ export default Component.extend({
         }
         return out;
       } else {
-          return waveformplot.findStartEnd(segments);
+          return {start: seismogram.start, end: seismogram.end};
       }
     },
     actions: {

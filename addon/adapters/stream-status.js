@@ -24,7 +24,7 @@ export default DS.JSONAPIAdapter.extend({
     if (query.port) { port = query.port;}
     if (query.match) { match = query.match;}
 
-    let conn = new seisplotjs.seedlink.RingserverConnection(host, port);
+    let conn = new seisplotjs.ringserverweb.RingserverConnection(host, port);
     console.log("before pullId url="+conn.formIdURL());
 
     return conn.pullId().then(rsid => {
@@ -36,7 +36,7 @@ export default DS.JSONAPIAdapter.extend({
       }).then(rsid => {
         return conn.pullStreams(match).then(hash => {
           rsid.accessTime = hash.accessTime.toISOString();
-          let staStreams = seisplotjs.seedlink.stationsFromStreams(hash.streams);
+          let staStreams = seisplotjs.ringserverweb.stationsFromStreams(hash.streams);
           let out = [];
           for (let ll of staStreams) {
             ll.rsid = rsid;
