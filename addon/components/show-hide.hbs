@@ -1,4 +1,6 @@
-<button {{on "click" this.toggleHide}}>{{this.buttonText}} {{@divTitle}}</button>
+
+<button {{on "click" this.toggleHide}}>{{this.buttonText}} </button>
+<h3>{{@divTitle}}</h3>
 <div class="show-hide" hidden={{this.isHidden}}>
   {{yield}}
 </div>

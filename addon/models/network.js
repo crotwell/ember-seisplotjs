@@ -1,10 +1,11 @@
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import moment from 'moment';
 
 export default class NetworkModel extends Model {
-  @attr networkCode;
-  @attr('date') startTime;
-  @attr('date') endTime;
-  @attr description;
+  @attr('string') networkCode;
+  @attr('moment') startTime;
+  @attr('moment') endTime;
+  @attr('string') description;
   @hasMany('station', {async: true}) stations;
 
 

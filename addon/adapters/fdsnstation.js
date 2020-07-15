@@ -3,7 +3,7 @@ import fdsnstationSerializer from '../serializers/fdsnstation';
 import seisplotjs from 'seisplotjs';
 import moment from 'moment';
 
-export default class FdsnstationAdapter extends Adapter {
+export default class FdsnStationAdapter extends Adapter {
   defaultHost = 'http://service.iris.edu';
   defaultNamespace =  'fdsnws/station/1/query';
 

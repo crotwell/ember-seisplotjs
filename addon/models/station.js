@@ -2,8 +2,8 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 export default class StationModel extends Model {
   @attr('string') stationCode;
-  @attr('date') startTime;
-  @attr('date') endTime;
+  @attr('moment') startTime;
+  @attr('moment') endTime;
   @attr('string') name;
   @attr('string') description;
   @attr site;

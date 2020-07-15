@@ -7,8 +7,8 @@ export default class ChannelModel extends Model {
   @belongsTo('station', {async: true}) station;
   @attr('string') name;
   @attr('string') description;
-  @attr('date') startTime;
-  @attr('date') endTime;
+  @attr('moment') startTime;
+  @attr('moment') endTime;
   @attr('number') latitude;
   @attr('number') longitude;
   @attr('number') elevation;

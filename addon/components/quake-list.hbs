@@ -1,0 +1,23 @@
+
+<table >
+  <thead>
+    <th {{action "sortBy" "name"}}>Name</th>
+    <th {{action "sortBy" "preferredOrigin.time"}}>Time</th>
+    <th {{action "sortBy" "preferredMagnitude.value"}}>Mag</th>
+    <th {{action "sortBy" "preferredOrigin.latitude"}}>Lat</th>
+    <th {{action "sortBy" "preferredOrigin.longitude"}}>Lon</th>
+    <th {{action "sortBy" "preferredOrigin.depth"}}>Depth(km)</th>
+    </thead>
+  {{#each sortedQuakes as |quake|}}
+    <tr>
+      <td>
+        <LinkTo @route='quakes.quake' @model={{quake.id}} >{{quake.description}}</LinkTo>
+      </td>
+      <td>{{format-iso-date quake.preferredOrigin.time format='YYYY-MM-DD HH:mm:ss'}}</td>
+      <td>{{format-number quake.preferredMagnitude.mag}} {{quake.preferredMagnitude.magType}}</td>
+      <td>{{quake.preferredOrigin.latitudeFormatted}}</td>
+      <td>{{quake.preferredOrigin.longitudeFormatted}}</td>
+      <td>{{quake.preferredOrigin.depthFormatted}} km</td>
+    </tr>
+  {{/each}}
+</table>
