@@ -11,7 +11,7 @@
   {{#each sortedQuakes as |quake|}}
     <tr>
       <td>
-        <LinkTo @route='quakes.quake' @model={{quake.id}} >{{quake.description}}</LinkTo>
+        <LinkTo @route={{@thelink}} @model={{quake.id}} >{{quake.description}}</LinkTo>
       </td>
       <td>{{format-iso-date quake.preferredOrigin.time format='YYYY-MM-DD HH:mm:ss'}}</td>
       <td>{{format-number quake.preferredMagnitude.mag}} {{quake.preferredMagnitude.magType}}</td>
