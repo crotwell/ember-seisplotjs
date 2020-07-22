@@ -1,14 +1,13 @@
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
-import { run } from '@ember/runloop';
-
 module('Unit | Model | station', function(hooks) {
   setupTest(hooks);
 
+  // Replace this with your real tests.
   test('it exists', function(assert) {
-    let model = run(() => this.owner.lookup('service:store').createRecord('station'));
-    // let store = this.store();
-    assert.ok(!!model);
+    let store = this.owner.lookup('service:store');
+    let model = store.createRecord('station', {});
+    assert.ok(model);
   });
 });

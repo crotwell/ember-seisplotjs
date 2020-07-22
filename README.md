@@ -1,16 +1,15 @@
 ember-seisplotjs
 ==============================================================================
 
-Wrapping [seisplotjs](https://github.com/crotwell/seisplotjs) for use in
-[Ember](http://emberjs.com).
+[Short description of the addon.]
 
 
 Compatibility
 ------------------------------------------------------------------------------
 
-* Ember.js v3.4 or above
+* Ember.js v3.12 or above
 * Ember CLI v2.13 or above
-* Node.js v8 or above
+* Node.js v10 or above
 
 
 Installation

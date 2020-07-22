@@ -1,4 +1,4 @@
 import FdsnEventAdapter from './fdsnevent';
 
-export default FdsnEventAdapter.extend({
-});
+export default class OriginAdapter extends FdsnEventAdapter {
+}

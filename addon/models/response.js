@@ -1,7 +1,6 @@
-import Model from 'ember-data/model';
-import DS from 'ember-data';
+import Model, { attr, belongsTo } from '@ember-data/model';
 
-export default Model.extend({
-  instrumentSensitivity: DS.attr(),
-  stages: DS.attr()
-});
+export default class ResponseModel extends Model {
+  @attr() instrumentSensitivity;
+  @attr() stages;
+}

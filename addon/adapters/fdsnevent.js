@@ -1,12 +1,11 @@
-import DS from 'ember-data';
-import fdsneventSerializer from '../serializers/fdsnevent';
-import seisplotjs from 'ember-seisplotjs';
+import Adapter from '@ember-data/adapter';
+import fdsnstationSerializer from '../serializers/fdsnstation';
+import seisplotjs from 'seisplotjs';
 import moment from 'moment';
 
-export default DS.Adapter.extend({
-  defaultHost: 'http://earthquake.usgs.gov',
-  defaultNamespace: 'fdsnws/event/1/query',
-  defaultSerializer: 'fdsnevent',
+export default class FdsnEventAdapter extends Adapter {
+  defaultHost = 'http://earthquake.usgs.gov';
+  defaultNamespace = 'fdsnws/event/1/query';
 
   findRecord(store, type, id, snapshot) {
     const modelName = type.modelName;
@@ -29,9 +28,9 @@ export default DS.Adapter.extend({
         throw new Error(`Query for eventId=${id} returned no quake.`);
       }
     });
-  },
+  }
   query(store, type, query) {
-    //console.log(`quake adapter query ${type.modelName}`);
+    console.log(`quake adapter query ${type.modelName}`);
 
     if (type.modelName != "quake") {
       throw new Error("can only do quake");
@@ -80,15 +79,15 @@ export default DS.Adapter.extend({
       throw new Error("FDSN Event Query but no parameters set, this results in a too large response.");
     }
     return eventQuery.query();
-  },
+  }
   findAll(store, type, sinceToken) {
     console.log("quake adapter findAll");
     throw new Error("No impl findAll "+type.modelName);
-  },
+  }
   // no impl findMany as not possible with current fdsn station ws
 
-  createRecord(store, type, snapshot) {throw new Error("fdsnstation is read-only, create not allowed.");},
-  deleteRecord(store, type, snapshot) {throw new Error("fdsnstation is read-only, delete not allowed.");},
+  createRecord(store, type, snapshot) {throw new Error("fdsnstation is read-only, create not allowed.");}
+  deleteRecord(store, type, snapshot) {throw new Error("fdsnstation is read-only, delete not allowed.");}
   findHasMany(store, snapshot, link, relationship) {
     //console.log("findHasMany: "+relationship.type+" "+relationship.kind+" "+link+" "+snapshot.id+" "+snapshot.modelName);
     throw new Error("No impl findHasMany ");
@@ -112,14 +111,5 @@ export default DS.Adapter.extend({
     } else {
       throw new Error("Unknown model and relationship: "+snapshot.modelName+" "+relationship.type+" "+link);
     }
-  },
-  /** checks for http or https */
-  findProtocol() {
-    var protocol = 'http:';
-    if (document && "https:" == document.location.protocol) {
-      protocol = 'https:';
-    }
-    console.log(`fdsnevent adapter findProtocol() == ${protocol}`);
-    return protocol;
   }
-});
+}

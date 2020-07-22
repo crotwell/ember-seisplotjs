@@ -1,18 +1,19 @@
-import DS from 'ember-data';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import moment from 'moment';
 
-export default DS.Model.extend({
-      eventId: DS.attr('string'),
-      publicId: DS.attr('string'),
-      time: DS.attr('moment'),
-      latitude: DS.attr('number'),
-      longitude: DS.attr('number'),
-      depth: DS.attr('number'),
-      description: DS.attr('string'),
-      prefMagnitude: DS.belongsTo('Magnitude'),
-      preferredMagnitudeID: DS.attr('string'),
-      preferredOrigin: DS.belongsTo('Origin'),
-      magnitudeList: DS.hasMany('Magnitude'),
-      originList: DS.hasMany('Origin'),
-      arrivalList: DS.hasMany('Arrival'),
-      pickList: DS.hasMany('Pick'),
-});
+export default class QuakeModel extends Model {
+  @attr('string') eventId;
+  @attr('string') publicId;
+  @attr('moment') time;
+  @attr('number') latitude;
+  @attr('number') longitude;
+  @attr('number') depth;
+  @attr('string') description;
+  @belongsTo('Magnitude') preferredMagnitude;
+  @attr('string') preferredMagnitudeID;
+  @belongsTo('Origin') preferredOrigin;
+  @hasMany('Magnitude') magnitudeList;
+  @hasMany('Origin') originList;
+  @hasMany('Arrival') arrivalList;
+  @hasMany('Pick') pickList;
+}

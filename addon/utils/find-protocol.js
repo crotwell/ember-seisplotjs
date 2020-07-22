@@ -1,12 +1,11 @@
-
-let protocol = null;
-
 export default function findProtocol() {
   if ( protocol === null) {
     protocol = _determineProtocol();
   }
   return protocol;
 }
+
+let protocol = null;
 
 
 /** checks for http or https */

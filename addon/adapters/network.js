@@ -1,4 +1,4 @@
 import FdsnStationAdapter from './fdsnstation';
 
-export default FdsnStationAdapter.extend({
-});
+export default class NetworkAdapter extends FdsnStationAdapter {
+}

@@ -1,8 +1,8 @@
-import DS from 'ember-data';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
-export default DS.Model.extend({
-  publicId: DS.attr('string'),
-  mag: DS.attr('number'),
-  type: DS.attr('string'),
-  quake: DS.belongsTo('Quake', {inverse: 'prefMagnitude'}),
-});
+export default class MagnitudeModel extends Model {
+    @attr('number') mag;
+    @attr('string') magType;
+    @belongsTo('quake', {inverse: 'magnitudeList'}) quake;
+    @attr('string') publicId;
+}

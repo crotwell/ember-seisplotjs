@@ -1,7 +1,7 @@
-import seisplotjs from 'ember-seisplotjs';
+import seisplotjs from 'seisplotjs';
 import findProtocol from '../utils/find-protocol';
 import RSVP from 'rsvp';
-const moment = seisplotjs.moment;
+import moment from 'moment';
 
 export default function travelTime(quake, station, phaseList) {
   if ( ! quake || ! station) {

@@ -1,11 +1,12 @@
-import DS from 'ember-data';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-import seisplotjs from 'ember-seisplotjs';
+import seisplotjs from 'seisplotjs';
 import moment from 'moment';
 
-export default DS.JSONAPISerializer.extend({
+export default class FdsnEventSerializer extends JSONAPISerializer {
+
   normalizeResponse(store, primaryModelClass, payload, id, requestType) {
-    // console.log(`FDSNEventSerializer normalizeResponse ${requestType} ${primaryModelClass.modelName}`);
+    console.log(`FDSNEventSerializer normalizeResponse ${requestType} ${primaryModelClass.modelName}`);
     if (requestType === 'findRecord') {
       return this.normalize(primaryModelClass, payload);
     } else if (requestType === 'findHasMany') {
@@ -30,9 +31,9 @@ export default DS.JSONAPISerializer.extend({
         return documentHash;
       }, { data: [], included: [] });
     }
-  },
+  }
   normalize(modelClass, resourceHash) {
-    // console.log(`FDSNEventSerializer normalize ${modelClass.modelName}`);
+    console.log(`FDSNEventSerializer normalize ${modelClass.modelName}`);
     if (modelClass.modelName === "quake") {
       return this.normalizeQuake(resourceHash);
     } else if (modelClass.modelName === "origin") {
@@ -44,7 +45,7 @@ export default DS.JSONAPISerializer.extend({
     }
     throw new Error("fdsnevent serializer unknown type to normalize: "+resourceHash.id
       +" "+modelClass.modelName);
-  },
+  }
   normalizeQuake(quake) {
     // console.log("normalizeQuake");
     let quakeId = this.createQuakeId(quake);
@@ -75,7 +76,7 @@ export default DS.JSONAPISerializer.extend({
         const magNorm = this.normalizeMagnitude(quake.magnitude, quakeId);
         included.push(magNorm.data);
 
-        data.relationships.prefMagnitude = {
+        data.relationships.preferredMagnitude = {
           data: {
             id: magNorm.data.id,
             type: magNorm.data.type,
@@ -118,7 +119,7 @@ export default DS.JSONAPISerializer.extend({
     let out = { data: data, included: included };
     //console.log("Quake as jsonapi: "+JSON.stringify(out, null, 2));
     return out;
-  },
+  }
   normalizeOrigin(origin, quakeId) {
     const data = {
       id: this.createOriginId(origin),
@@ -163,14 +164,14 @@ export default DS.JSONAPISerializer.extend({
     }
     const out = { data: data, included: included };
     return out;
-  },
+  }
   normalizeMagnitude(mag, quakeId) {
     const data = {
       id: this.createMagnitudeId(mag),
       type: 'magnitude',
       attributes: {
         mag: mag.mag,
-        type: mag.type,
+        magType: mag.type,
       },
       relationships: {
         quake: {
@@ -184,7 +185,7 @@ export default DS.JSONAPISerializer.extend({
     const included = [];
     const out = { data: data, included: included };
     return out;
-  },
+  }
   normalizeArrival(arrival, originId) {
     const data = {
       id: this.createArrivalId(arrival),
@@ -215,7 +216,7 @@ export default DS.JSONAPISerializer.extend({
     }
     const out = { data: data, included: included };
     return out;
-  },
+  }
   normalizePick(pick, quakeId) {
     const data = {
       id: this.createPickId(pick),
@@ -240,7 +241,7 @@ export default DS.JSONAPISerializer.extend({
     const included = [];
     const out = { data: data, included: included };
     return out;
-  },
+  }
   serialize(snapshot, options) {
     var json = {
       id: snapshot.id
@@ -259,23 +260,23 @@ export default DS.JSONAPISerializer.extend({
     });
 
     return json;
-  },
-  createQuakeId: function(spjsQuake) {
+  }
+  createQuakeId(spjsQuake) {
     return spjsQuake.eventId;
-  },
-  createOriginId: function(spjsOrigin) {
+  }
+  createOriginId(spjsOrigin) {
     return spjsOrigin.publicId;
-  },
-  createMagnitudeId: function(spjsMag) {
+  }
+  createMagnitudeId(spjsMag) {
     return spjsMag.publicId;
-  },
-  createArrivalId: function(spjsArrival) {
+  }
+  createArrivalId(spjsArrival) {
     return spjsArrival.publicId;
-  },
-  createPickId: function(spjsPick) {
+  }
+  createPickId(spjsPick) {
     return spjsPick.publicId;
-  },
-  QUAKE_MAG_URL: "seisplotjs:quake.magURL",
-  QUAKE_PICK_URL: "seisplotjs:quake.pickURL",
-  QUAKE_ARRIVAL_URL: "seisplotjs:quake.arrivalURL",
-});
+  }
+  QUAKE_MAG_URL = "seisplotjs:quake.magURL";
+  QUAKE_PICK_URL = "seisplotjs:quake.pickURL";
+  QUAKE_ARRIVAL_URL = "seisplotjs:quake.arrivalURL";
+}

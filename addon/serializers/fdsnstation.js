@@ -1,10 +1,10 @@
-import JSONAPISerializer from 'ember-data/serializers/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-import seisplotjs from 'ember-seisplotjs';
+import seisplotjs from 'seisplotjs';
 import moment from 'moment';
-//const moment = seisplotjs.model.moment;
 
-export default JSONAPISerializer.extend({
+export default class FdsnstationSerializer extends JSONAPISerializer {
+
   normalizeResponse(store, primaryModelClass, payload, id, requestType) {
     if (requestType === 'findRecord') {
       return this.normalize(primaryModelClass, payload);
@@ -48,7 +48,7 @@ export default JSONAPISerializer.extend({
         return documentHash;
       }, { data: [], included: [] });
     }
-  },
+  }
   normalize(modelClass, resourceHash) {
     let net = resourceHash;
     if (Array.isArray(resourceHash)) {
@@ -91,7 +91,7 @@ export default JSONAPISerializer.extend({
     }
     throw new Error("fdsnstation serializer unknown type to normalize: "+resourceHash.id
       +" "+modelClass.modelName);
-  },
+  }
   normalizeNetwork(net) {
     const data = {
       id: this.createNetworkId(net),
@@ -118,7 +118,7 @@ export default JSONAPISerializer.extend({
       }
     }
     return { data: data, included: included };
-  },
+  }
   normalizeStation(sta) {
     const data = {
       id: this.createStationId(sta),
@@ -157,7 +157,7 @@ export default JSONAPISerializer.extend({
     }
     const out = { data: data, included: included };
     return out;
-  },
+  }
   normalizeChannel(chan) {
     const data = {
       id: this.createChannelId(chan),
@@ -203,7 +203,7 @@ export default JSONAPISerializer.extend({
       included.push(this.normalizeChannelResponse(chan.response, data.id).data);
     }
     return { data: data, included: included };
-  },
+  }
   normalizeChannelResponse(resp, chanId) {
     if ( ! chanId) {throw new Error("ChannelId is not defined: "+chanId);}
     const data = {
@@ -216,7 +216,7 @@ export default JSONAPISerializer.extend({
     };
     const included = [];
     return { data: data, included: included };
-  },
+  }
   serialize(snapshot, options) {
     var json = {
       id: snapshot.id
@@ -235,30 +235,30 @@ export default JSONAPISerializer.extend({
     });
 
     return json;
-  },
-  createNetworkId: function(spjsNet) {
+  }
+  createNetworkId(spjsNet) {
     if (spjsNet.isTempNet()) {
       // append year if temp
       return spjsNet.codes()+"_"+spjsNet.startDate.toISOString().substring(0,4);
     } else {
       return spjsNet.codes();
     }
-  },
-  createStationId: function(spjsStation) {
+  }
+  createStationId(spjsStation) {
     return this.createNetworkId(spjsStation.network)
       +"."+spjsStation.stationCode
       +"_"+spjsStation.startDate.toISOString();
-  },
-  createChannelId: function(spjsChannel) {
+  }
+  createChannelId(spjsChannel) {
     return this.createNetworkId(spjsChannel.station.network)
       +"."+spjsChannel.station.stationCode
       +"."+spjsChannel.locationCode
       +"."+spjsChannel.channelCode
       +"_"+spjsChannel.startDate.toISOString();
-  },
-  NET_STATIONS_URL: "seisplotjs:net.stationsURL",
-  STA_NETWORK_URL: "seisplotjs:sta.networkURL",
-  STA_CHANNELS_URL: "seisplotjs:sta.channelsURL",
-  CHAN_STATION_URL: "seisplotjs:chan_stationURL",
-  CHAN_RESPONSE_URL: "seisplotjs:chan_responseURL",
-});
+  }
+  NET_STATIONS_URL = "seisplotjs:net.stationsURL";
+  STA_NETWORK_URL = "seisplotjs:sta.networkURL";
+  STA_CHANNELS_URL = "seisplotjs:sta.channelsURL";
+  CHAN_STATION_URL = "seisplotjs:chan_stationURL";
+  CHAN_RESPONSE_URL = "seisplotjs:chan_responseURL";
+}

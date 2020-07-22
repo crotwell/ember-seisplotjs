@@ -1,17 +1,17 @@
-import DS from 'ember-data';
+import Adapter from '@ember-data/adapter';
 import fdsnstationSerializer from '../serializers/fdsnstation';
-import seisplotjs from 'ember-seisplotjs';
+import seisplotjs from 'seisplotjs';
 import moment from 'moment';
 
-export default DS.Adapter.extend({
-  defaultHost: 'http://service.iris.edu',
-  defaultNamespace: 'fdsnws/station/1/query',
-  defaultSerializer: 'fdsnstation',
+export default class FdsnStationAdapter extends Adapter {
+  defaultHost = 'http://service.iris.edu';
+  defaultNamespace =  'fdsnws/station/1/query';
+
 
   findRecord(store, type, id, snapshot) {
     const modelName = type.modelName;
     console.log("FDSNStation adapter findRecord modelName: "+modelName+" id: "+id);
-    var protocol = this.findProtocol();
+    let protocol = this.findProtocol();
     let codes_date = id.split("_");
     let idDateStr = codes_date[1];
     let promise;
@@ -62,7 +62,7 @@ export default DS.Adapter.extend({
           throw new Error("no network for id "+id+" found.");
         }
       });
-  },
+  }
   query(store, type, query) {
     console.log(`Station adapter query ${type.modelName}`);
     if (type.modelName === 'network' ||
@@ -120,15 +120,15 @@ export default DS.Adapter.extend({
       console.log("Station adapter query");
       throw new Error(`No impl query ${type.modelName}`);
     }
-  },
+  }
   findAll(store, type, sinceToken) {
     console.log("Station adapter findAll");
     throw new Error("No impl findAll "+type.modelName);
-  },
+  }
   // no impl findMany as not possible with current fdsn station ws
 
-  createRecord(store, type, snapshot) {throw new Error("fdsnstation is read-only, create not allowed.");},
-  deleteRecord(store, type, snapshot) {throw new Error("fdsnstation is read-only, delete not allowed.");},
+  createRecord(store, type, snapshot) {throw new Error("fdsnstation is read-only, create not allowed.");}
+  deleteRecord(store, type, snapshot) {throw new Error("fdsnstation is read-only, delete not allowed.");}
   findHasMany(store, snapshot, link, relationship) {
     console.log("findHasMany: "+relationship.type+" "+relationship.kind+" "+link+" "+snapshot.id+" "+snapshot.modelName);
     if (snapshot.modelName === 'network' && relationship.type === 'station') {
@@ -151,7 +151,7 @@ export default DS.Adapter.extend({
     } else {
       throw new Error("Unknown model and relationship: "+snapshot.modelName+" "+relationship.type+" "+link);
     }
-  },
+  }
   /** checks for http or https */
   findProtocol() {
     var protocol = 'http:';
@@ -160,4 +160,4 @@ export default DS.Adapter.extend({
     }
     return protocol;
   }
-});
+}

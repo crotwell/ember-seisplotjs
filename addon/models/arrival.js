@@ -1,7 +1,7 @@
-import DS from 'ember-data';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
-export default DS.Model.extend({
-  phase: DS.attr('string'),
-  pick: DS.belongsTo('pick'),
-  publicId: DS.attr('string'),
-});
+export default class ArrivalModel extends Model {
+  @attr('string') phase;
+  @belongsTo('pick') pick;
+  @attr('string') publicId;
+}

@@ -1,56 +1,51 @@
-import Model from 'ember-data/model';
-import { computed } from '@ember/object';
-import DS from 'ember-data';
-import moment from 'moment';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
-export default Model.extend({
+export default class ChannelModel extends Model {
 
-  channelCode: DS.attr('string'),
-  locationCode: DS.attr('string'),
-  station: DS.belongsTo('station', {async: true}),
-  name: DS.attr('string'),
-  description: DS.attr('string'),
-  startTime: DS.attr('moment'),
-  endTime: DS.attr('moment'),
-  latitude: DS.attr('number'),
-  longitude: DS.attr('number'),
-  elevation: DS.attr('number'),
-  depth: DS.attr('number'),
-  azimuth: DS.attr('number'),
-  dip: DS.attr('number'),
-  sampleRate: DS.attr('number'),
-  restrictedStatus: DS.attr('string'),
-  instrumentSensitivity: DS.attr(),
-  response: DS.belongsTo('response'),
+  @attr('string') channelCode;
+  @attr('string') locationCode;
+  @belongsTo('station', {async: true}) station;
+  @attr('string') name;
+  @attr('string') description;
+  @attr('moment') startTime;
+  @attr('moment') endTime;
+  @attr('number') latitude;
+  @attr('number') longitude;
+  @attr('number') elevation;
+  @attr('number') depth;
+  @attr('number') azimuth;
+  @attr('number') dip;
+  @attr('number') sampleRate;
+  @attr('string') restrictedStatus;
+  @attr() instrumentSensitivity;
+  @belongsTo('response') response;
 
-  isActive: computed('endTime', function() {
-      return ! this.get('endTime') || ! this.get('endTime').isBefore(moment.utc());
-    }),
-  latitudeFormatted: computed('latitude', function() {
-     return this.get('latitude').toFixed(2);
-  }),
-  longitudeFormatted: computed('longitude', function() {
-     return this.get('longitude').toFixed(2);
-  }),
-  networkCode: computed('station', function() {
+
+  get isActive() {
+    return ! this.get('endTime') || ! this.get('endTime').isBefore(moment.utc());
+  }
+  get latitudeFormatted() {
+    return this.get('latitude').toFixed(2);
+  }
+  get longitudeFormatted() {
+    return this.get('longitude').toFixed(2);
+  }
+  get networkCode() {
     return this.get('station').get('networkCode');
-  }),
-  stationCode: computed('station', function() {
+  }
+  get stationCode() {
     return this.get('station').get('stationCode');
-  }),
-  codes: computed('stationCode',
-             'networkCode',
-             'locationCode',
-             'channelCode', function() {
+  }
+  get codes() {
     return this.get('networkCode')
       +"."+this.get('stationCode')
       +"."+this.get('locationCode')
       +"."+this.get('channelCode');
-  }),
+  }
 
-   activeAt: function(when) {
-     if ( ! when) {when = moment.utc();}
-     return this.get('startTime').isBefore(when)
-      && ( ! this.get('endTime') || this.get('endTime').isAfter(when));
-   },
-});
+  activeAt(when) {
+    if ( ! when) {when = moment.utc();}
+    return this.get('startTime').isBefore(when)
+    && ( ! this.get('endTime') || this.get('endTime').isAfter(when));
+   }
+}

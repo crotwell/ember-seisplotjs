@@ -1,11 +1,14 @@
-import DS from 'ember-data';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import moment from 'moment';
+import Quake from './quake';
 
-export default DS.Model.extend({
-  time:  DS.attr('moment'),
-  networkCode: DS.attr('string'),
-  stationCode: DS.attr('string'),
-  locationCode: DS.attr('string'),
-  channelCode: DS.attr('string'),
-  publicId: DS.attr('string'),
-  quake: DS.belongsTo('Quake'),
-});
+export default class PickModel extends Model {
+  @attr('moment') time;
+  @attr('string') networkCode;
+  @attr('string') stationCode;
+  @attr('string') locationCode;
+  @attr('string') channelCode;
+  @attr('string') publicId;
+  @belongsTo('Quake') quake;
+
+}

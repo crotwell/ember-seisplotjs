@@ -1,9 +1,9 @@
 import findProtocol from 'dummy/utils/find-protocol';
 import { module, test } from 'qunit';
 
-module('Unit | Utility | find-protocol', function(hooks) {
+module('Unit | Utility | find-protocol', function() {
 
-  // Replace this with your real tests.
+  // TODO: Replace this with your real tests.
   test('it works', function(assert) {
     let result = findProtocol();
     assert.ok(result);

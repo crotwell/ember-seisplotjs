@@ -1,4 +1,3 @@
-
 export default function firstPS(traveltimes) {
   let pArrival = traveltimes.traveltime.arrivals.reduce( (acc, cur) => {
         if (cur.phase.startsWith('P') || cur.phase.startsWith('p')) {
