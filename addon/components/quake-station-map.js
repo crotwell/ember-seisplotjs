@@ -38,14 +38,28 @@ export default class QuakeStationMapComponent extends Component {
   }
   get centerLat() {
     if (this.args.center) {
-      return this.args.center.latitude;
+      if ('latitude' in this.args.center ) {
+        return this.args.center.latitude;
+      } else if (Array.isArray(this.args.center)) {
+        return this.args.center[0];
+      }
+    }
+    if (this.args.lat) {
+      return this.args.lat;
     }
     const b = this.bounds;
     return (b[0][0] + b[1][0])/2;
   }
   get centerLon() {
     if (this.args.center) {
-      return this.args.center.longitude;
+      if ('longitude' in this.args.center ) {
+        return this.args.center.longitude;
+      } else if (Array.isArray(this.args.center)) {
+        return this.args.center[1];
+      }
+    }
+    if (this.args.lng) {
+      return this.args.lng;
     }
     const b = this.bounds;
     return (b[0][1] + b[1][1])/2;

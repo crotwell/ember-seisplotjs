@@ -2,21 +2,28 @@
 <LeafletMap @worldCopyJump='true' @lat={{centerLat}} @lng={{centerLon}} @zoom={{zoomLevel}} as |layers|>
   <layers.tile @url="http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"/>
 
+  {{#if @quakeQueryBox}}
+    <layers.polygon @locations={{@quakeQueryBox}} @color="lightgrey" as |polygon|>
+      <polygon.tooltip @sticky={{true}}>
+        Inside Earthquake Search Region
+      </polygon.tooltip>
+    </layers.polygon>
+  {{/if}}
 
   {{#each stationList as |s|}}
     <layers.marker @lat={{s.latitude}} @lng={{sub-360 s.longitude}} @icon={{div-icon className='stationMarker'}} as |marker|>
       <marker.popup>
-        <h3><LinkTo @route='stations.station' @model={{s}} >{{s.codes}}</LinkTo></h3>
+        <h3><LinkTo @route={{@stationlink}} @model={{s.id}} >{{s.codes}}</LinkTo></h3>
       </marker.popup>
     </layers.marker>
     <layers.marker @lat={{s.latitude}} @lng={{s.longitude}} @icon={{div-icon className='stationMarker'}} as |marker|>
       <marker.popup>
-        <h3><LinkTo @route='stations.station' @model={{s}} >{{s.codes}}</LinkTo></h3>
+        <h3><LinkTo @route={{@stationlink}} @model={{s.id}} >{{s.codes}}</LinkTo></h3>
       </marker.popup>
     </layers.marker>
     <layers.marker @lat={{s.latitude}} @lng={{add-360 s.longitude}} @icon={{div-icon className='stationMarker'}} as |marker|>
       <marker.popup>
-        <h3><LinkTo @route='stations.station' @model={{s}} >{{s.codes}}</LinkTo></h3>
+        <h3><LinkTo @route={{@stationlink}} @model={{s.id}} >{{s.codes}}</LinkTo></h3>
       </marker.popup>
     </layers.marker>
   {{/each}}
@@ -24,17 +31,17 @@
   {{#each quakeList as |q|}}
     <layers.circle-marker @lat={{q.preferredOrigin.latitude}} @lng={{sub-360 q.preferredOrigin.longitude}} @radius={{scaled-magnitude q pixelsPerMag=5}} class='stationMarker' as |marker|>
       <marker.popup>
-        <h3>Quake: <LinkTo @route='quakes.quake' @model={{q}} >{{q.name}} {{format-iso-date q.preferredOrigin.time }} {{q.prefMagnitude.magFormatted}} {{q.prefMagnitude.magType}}</LinkTo></h3>
+        <h3>Quake: <LinkTo @route={{@quakelink}} @model={{q.id}} >{{q.name}} {{format-iso-date q.preferredOrigin.time }} {{q.prefMagnitude.magFormatted}} {{q.prefMagnitude.magType}}</LinkTo></h3>
       </marker.popup>
     </layers.circle-marker>
       <layers.circle-marker @lat={{q.preferredOrigin.latitude}} @lng={{q.preferredOrigin.longitude}} @radius={{scaled-magnitude q pixelsPerMag=5}} class='stationMarker' as |marker|>
         <marker.popup>
-          <h3>Quake: <LinkTo @route='quakes.quake' @model={{q}} >{{q.name}} {{format-iso-date q.preferredOrigin.time }} {{q.prefMagnitude.magFormatted}} {{q.prefMagnitude.magType}}</LinkTo></h3>
+          <h3>Quake: <LinkTo @route={{@quakelink}} @model={{q.id}} >{{q.name}} {{format-iso-date q.preferredOrigin.time }} {{q.prefMagnitude.magFormatted}} {{q.prefMagnitude.magType}}</LinkTo></h3>
         </marker.popup>
       </layers.circle-marker>
     <layers.circle-marker @lat={{q.preferredOrigin.latitude}} @lng={{add-360 q.preferredOrigin.longitude}} @radius={{scaled-magnitude q pixelsPerMag=5}} class='stationMarker' as |marker|>
       <marker.popup>
-        <h3>Quake: <LinkTo @route='quakes.quake' @model={{q}} >{{q.name}} {{format-iso-date q.preferredOrigin.time }} {{q.prefMagnitude.magFormatted}} {{q.prefMagnitude.magType}}</LinkTo></h3>
+        <h3>Quake: <LinkTo @route={{@quakelink}} @model={{q.id}} >{{q.name}} {{format-iso-date q.preferredOrigin.time }} {{q.prefMagnitude.magFormatted}} {{q.prefMagnitude.magType}}</LinkTo></h3>
       </marker.popup>
     </layers.circle-marker>
   {{/each}}
