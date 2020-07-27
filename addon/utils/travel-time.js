@@ -8,7 +8,7 @@ export default function travelTime(quake, station, phaseList) {
     throw new Error(`Both quake and station required q=${quake} s=${station}`);
   }
   if (! phaseList || phaseList.length === 0) {
-    phaseList = [ 'p', 'P', 's', 'S', 'PKP', 'PKP', 'PKIKP', 'SKS'];
+    phaseList = [ 'p', 'P', 'Pdiff', 's', 'S', 'Sdiff', 'PKP', 'PKP', 'PKIKP', 'SKS'];
   }
   let distaz = seisplotjs.distaz.distaz(station.latitude, station.longitude,
                                  quake.latitude, quake.longitude, quake.depth);
