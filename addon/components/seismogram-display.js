@@ -4,40 +4,23 @@ import RSVP from 'rsvp';
 import {d3, seismogram, seismographconfig, seismograph} from 'seisplotjs';
 
 export default class SeismogramDisplayComponent extends Component {
+  graph = null;
 
   @action
   createGraph(element) {
-    console.log(`createGraph`);
     let div = d3.select(element);
     if (this.args.seisDisplayData) {
       let seisDisplayDataList = [];
       if (Array.isArray(this.args.seisDisplayData)) {
-        console.log(`SeismogramDisplayComponent is array`);
         seisDisplayDataList = this.args.seisDisplayData;
       } else {
-        console.log(`SeismogramDisplayComponent is NOT array`);
         seisDisplayDataList = [ this.args.seisDisplayData ];
       }
       let seisConfig = new seismographconfig.SeismographConfig();
       seisConfig.wheelZoom = false;
-      if (this.args.title) {
-        seisConfig.title = this.args.title;
-      } else {
-        let channels = seisDisplayDataList.map(sdd => sdd.channel);
-        if (channels) {
-          seisConfig.title = "";
-          channels.forEach( c => {
-            seisConfig.title += c.locationCode+"."+c.channelCode;
-          });
-        } else {
-          seisConfig.title = "no channels...";
-        }
-      }
       seisConfig.margin.top = 25;
       if ( ! seisDisplayDataList) {
-        console.error(`quakeVector.waveforms is null`);
       } else {
-        console.log(`quakeVector waveforms ${seisDisplayDataList.length}`);
       }
       //let seis = seismogram.Seismogram.createFromContiguousData(dataArray, sampleRate, start);
       //let waveforms = await RSVP.all(Array.from(this.args.quakeVector.waveforms));
@@ -45,14 +28,37 @@ export default class SeismogramDisplayComponent extends Component {
         div.select("h5").text("No data...");
       } else {
         div.select("h5").remove();
-        let graph = new seismograph.Seismograph(div, seisConfig, seisDisplayDataList);
-        graph.draw();
-        if (graph.checkResize()) {
-          graph.draw();
+        this.graph = new seismograph.Seismograph(div, seisConfig, seisDisplayDataList);
+        this.recalcTitle();
+        this.graph.draw();
+        if (this.graph.checkResize()) {
+          this.graph.draw();
         }
       }
     } else {
       div.append('p').text("SeismogramDisplay but no SDD...");
+    }
+  }
+
+  @action updateGraph(element, [ title ]) {
+    this.recalcTitle();
+    this.graph.drawTitle();
+  }
+
+  recalcTitle() {
+    if ( ! this.graph ) {return;}
+    if (this.args.title) {
+      this.graph.seismographConfig.title = this.args.title;
+    } else {
+      let channels = this.graph.seisDataList.map(sdd => sdd.channel);
+      if (channels) {
+        this.graph.seismographConfig.title = "";
+        channels.forEach( c => {
+          this.graph.seismographConfig.title += c.locationCode+"."+c.channelCode;
+        });
+      } else {
+        this.graph.seismographConfig.title = "no channels...";
+      }
     }
   }
 }

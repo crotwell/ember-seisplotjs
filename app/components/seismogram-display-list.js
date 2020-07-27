@@ -1,0 +1,1 @@
+export { default } from 'ember-seisplotjs/components/seismogram-display-list';

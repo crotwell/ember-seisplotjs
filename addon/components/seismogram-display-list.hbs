@@ -1,0 +1,24 @@
+<div class="seismogramDiv" ...attributes >
+
+  <ShowHide @divTitle="Seismograph Tools">
+    <div class="seisdisplaytools">
+      <span>Sort: </span>
+      {{#each sortTypes as |s|}}
+        <label for={{s.field}}>
+          <Input {{on "click" (fn this.sortBy s.field)}} @type="checkbox" name="sort" id={{s.field}} @checked={{eq sortField s.field}} />
+          <span>{{s.name}}</span>
+        </label>
+      {{/each}}
+
+    </div>
+  </ShowHide>
+          {{yield}}
+  {{#each sortedSeisDisplayList as |sdd|}}
+
+    <SeismogramDisplay
+      @seisDisplayData={{sdd}}
+      @title={{concat (sdd-channel-codes sdd) ' ' sortFieldName '=' (format-number (get sdd sortField ) 2)}}
+      @overlayPicks=true>
+    </SeismogramDisplay>
+  {{/each}}
+</div>

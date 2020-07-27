@@ -1,34 +1,25 @@
 
 /* eslint-env node */
 module.exports = {
-  description: '',
+  description: 'add seisplotjs npm package',
 
-  // ??? really needed???
-  normalizeEntityName: function() {},
-
-  // locals(options) {
+  // locals: function(options) {
   //   // Return custom template variables here.
   //   return {
   //     foo: options.entity.options.foo
   //   };
   // }
 
-   afterInstall(options) {
-     // Perform extra work here.
-     // Add addons to package.json and run defaultBlueprint
-     return this.addAddonsToProject({
-      // a packages array defines the addons to install
-      packages: [
-        // name is the addon name, and target (optional) is the version
-        {name: 'ember-browserify'},
-        {name: 'ember-moment'}
-      ]
-    })
-    .then(() => {
-      // Add npm packages to package.json
-      return this.addPackagesToProject([
-        {name: 'seisplotjs', target: '^1.2.1-alpha.1'}
-      ]);
-    });
-   }
+  normalizeEntityName: function() {
+    // this prevents an error when the entityName is
+    // not specified (since that doesn't actually matter
+    // to us
+  },
+
+  afterInstall: function() {
+    return this.addPackagesToProject([
+      {name: 'seisplotjs', version:'^2.0.1'},
+      {name: '@ember/render-modifiers'}
+    ]);
+  }
 };
