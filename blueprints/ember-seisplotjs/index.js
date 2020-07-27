@@ -17,9 +17,17 @@ module.exports = {
   },
 
   afterInstall: function() {
-    return this.addPackagesToProject([
-      {name: 'seisplotjs', version:'^2.0.1'},
-      {name: '@ember/render-modifiers'}
-    ]);
+    return this.addAddonsToProject({
+      // a packages array defines the addons to install
+      packages: [
+         // name is the addon name, and target (optional) is the version
+         {name: '@ember/render-modifiers'},
+         {name: 'ember-moment'}
+      ]
+    }).then(() => {
+      return this.addPackagesToProject([
+          {name: 'seisplotjs', target:'^2.0.1'}
+      ]);
+    });
   }
 };
