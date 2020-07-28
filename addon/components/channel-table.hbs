@@ -1,0 +1,35 @@
+
+
+<table >
+  <thead>
+    <th {{action "sortBy" "codes"}}>Code</th>
+    <th {{action "sortBy" "startTime"}}>StartTime</th>
+    <th {{action "sortBy" "endTime"}}>EndTime</th>
+    <th {{action "sortBy" "latitude"}}>Lat</th>
+    <th {{action "sortBy" "longitude"}}>Lon</th>
+    <th {{action "sortBy" "elevation"}}>Elevation(m)</th>
+    <th {{action "sortBy" "depth"}}>Depth(m)</th>
+    <th {{action "sortBy" "azimuth"}}>Azimuth(deg)</th>
+    <th {{action "sortBy" "dip"}}>Dip(deg)</th>
+    <th {{action "sortBy" "sampleRate"}}>Sample Rate</th>
+    </thead>
+  {{#each sortedChannels as |chan|}}
+    <tr>
+      <td>
+        {{chan.codes}}
+      </td>
+      <td>{{format-iso-date chan.startTime format='YYYY-MM-DD'}}</td>
+      <td>{{format-iso-date chan.endTime format='YYYY-MM-DD'}}</td>
+      <td>{{chan.latitude}}</td>
+      <td>{{chan.longitude}}</td>
+      <td>{{chan.elevation}}</td>
+      <td>{{chan.depth}}</td>
+      <td>{{chan.azimuth}}</td>
+      <td>{{chan.dip}}</td>
+      <td>{{chan.sampleRate}}</td>
+    </tr>
+  {{/each}}
+</table>
+
+
+{{yield}}
