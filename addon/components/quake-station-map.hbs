@@ -1,11 +1,11 @@
 
 <LeafletMap @worldCopyJump='true' @lat={{centerLat}} @lng={{centerLon}} @zoom={{zoomLevel}} as |layers|>
-  <layers.tile @url="http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"/>
+  <layers.tile @url={{tileUrl}}/>
 
   {{#if @quakeQueryBox}}
     <layers.polygon @locations={{@quakeQueryBox}} @color="lightgrey" as |polygon|>
       <polygon.tooltip @sticky={{true}}>
-        Inside Earthquake Search Region
+        Earthquake Search Region
       </polygon.tooltip>
     </layers.polygon>
   {{/if}}

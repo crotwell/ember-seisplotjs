@@ -3,7 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { A, isArray } from '@ember/array';
 
 export default class QuakeStationMapComponent extends Component {
-
+  @tracked tileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}";
   @tracked _zoomLevel = 1;
   @tracked pixelPerMagnitude = 3;
   get zoomLevel() {
