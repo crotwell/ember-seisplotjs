@@ -1,4 +1,5 @@
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import moment from 'moment';
 
 export default class ChannelModel extends Model {
 
