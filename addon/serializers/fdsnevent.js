@@ -37,7 +37,7 @@ export default class FdsnEventSerializer extends JSONAPISerializer {
     if (modelClass.modelName === "quake") {
       return this.normalizeQuake(resourceHash);
     } else if (modelClass.modelName === "origin") {
-      return this.normalizePick(resourceHash);
+      return this.normalizeOrigin(resourceHash);
     } else if (modelClass.modelName === "pick") {
       return this.normalizePick(resourceHash);
     } else if (modelClass.modelName === "arrival") {
