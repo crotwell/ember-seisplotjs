@@ -17,7 +17,7 @@
       <td>{{format-number quake.preferredMagnitude.mag}} {{quake.preferredMagnitude.magType}}</td>
       <td>{{quake.preferredOrigin.latitudeFormatted}}</td>
       <td>{{quake.preferredOrigin.longitudeFormatted}}</td>
-      <td>{{quake.preferredOrigin.depthFormatted}} km</td>
+      <td>{{m-to-km quake.preferredOrigin.depthFormatted}}</td>
     </tr>
   {{/each}}
 </table>
