@@ -1,5 +1,5 @@
 
-<LeafletMap @worldCopyJump='true' @lat={{centerLat}} @lng={{centerLon}} @zoom={{zoomLevel}} as |layers|>
+<LeafletMap ...attributes @worldCopyJump='true' @lat={{centerLat}} @lng={{centerLon}} @zoom={{zoomLevel}} as |layers|>
   <layers.tile @url={{tileUrl}}/>
 
   {{#if @quakeQueryBox}}
