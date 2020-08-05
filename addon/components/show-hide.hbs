@@ -1,4 +1,5 @@
 
+<div>
 <div class="div-as-row" style="display: flex;justify-content: middle;align-items: center;">
   <span style="vertical-align:middle;" >
     <button style="display:inline-block;vertical-align:middle;" {{on "click" this.toggleHide}}>{{this.buttonText}} </button>
@@ -7,4 +8,5 @@
 </div>
 <div class="show-hide" hidden={{this.isHidden}}>
   {{yield}}
+</div>
 </div>
