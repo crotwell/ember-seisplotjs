@@ -12,6 +12,8 @@
     <th {{action "sortBy" "azimuth"}}>Azimuth(deg)</th>
     <th {{action "sortBy" "dip"}}>Dip(deg)</th>
     <th {{action "sortBy" "sampleRate"}}>Sample Rate</th>
+    <th {{action "sortBy" "sensor.description"}}>Sensor</th>
+    <th {{action "sortBy" "datalogger.description"}}>Logger</th>
     </thead>
   {{#each sortedChannels as |chan|}}
     <tr>
@@ -27,6 +29,8 @@
       <td>{{chan.azimuth}}</td>
       <td>{{chan.dip}}</td>
       <td>{{chan.sampleRate}}</td>
+      <td>{{equipment-description chan.sensor}}</td>
+      <td>{{equipment-description chan.datalogger}}</td>
     </tr>
   {{/each}}
 </table>

@@ -20,6 +20,9 @@ export default class ChannelModel extends Model {
   @attr('string') restrictedStatus;
   @attr() instrumentSensitivity;
   @belongsTo('response') response;
+  @attr() sensor;
+  @attr() preamplifier;
+  @attr() datalogger;
 
 
   get isActive() {

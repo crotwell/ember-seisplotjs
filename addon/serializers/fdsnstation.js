@@ -176,6 +176,9 @@ export default class FdsnstationSerializer extends JSONAPISerializer {
         dip: chan.dip,
         sampleRate: chan.sampleRate,
         restrictedStatus: chan.restrictedStatus,
+        sensor: chan.sensor,
+        preamplifier: chan.preamplifier,
+        datalogger: chan.datalogger,
       },
       relationships: {
         station: {
