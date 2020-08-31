@@ -1,4 +1,7 @@
-<div class="seismogramDiv" ...attributes {{did-insert this.createGraph}} {{did-update this.updateGraph @title}}>
-<h5>Loading...</h5>
+<div class="seismogramDiv" ...attributes
+{{did-insert (action this.createGraph)}}
+{{did-update (action this.updateGraph @seismographConfig @seisDisplayData @title) }}>
+  <h5>Loading...</h5>
 </div>
+
 {{yield}}

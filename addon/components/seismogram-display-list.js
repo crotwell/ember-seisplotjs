@@ -4,6 +4,7 @@ import EmberObject from '@ember/object';
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { sort } from '@ember/object/computed';
+import {d3, seismogram, seismographconfig, seismograph} from 'seisplotjs';
 
 class SortFieldType {
   name = "name";
@@ -25,6 +26,7 @@ export default class SeismogramDisplayListComponent extends Component {
 
 
   @tracked sortDefinition = A([ `${this.sortTypes[0].field}:asc` ]);
+  @tracked seismographConfig;
 
   get sortDirection() {
     return this.sortDefinition.get(1).split(':')[1];
@@ -51,8 +53,8 @@ export default class SeismogramDisplayListComponent extends Component {
 
   @sort('args.seisDisplayList', 'sortDefinition') sortedSeisDisplayList;
 
-  init() {
-    this._super(...arguments);
+  constructor() {
+    super(...arguments);
     if (this.args.sortDefinition) {
       // maybe check for array?
       if (isArray(this.args.sortDefinition)) {
@@ -62,6 +64,16 @@ export default class SeismogramDisplayListComponent extends Component {
       }
     } else {
       this.sortDefinition = A([ `${this.sortTypes[0]}:asc` ]);
+    }
+    if (this.args.seismographConfig) {
+      this.seismographConfig = this.args.seismographConfig;
+    } else {
+      this.seismographConfig = new seismographconfig.SeismographConfig();
+      this.seismographConfig.title = seismographconfig.DEFAULT_TITLE;
+      this.seismographConfig.linkedAmpScale = new seismographconfig.LinkedAmpScale();
+      this.seismographConfig.linkedTimeScale = new seismographconfig.LinkedTimeScale();
+      this.seismographConfig.wheelZoom = false;
+      this.seismographConfig.margin.top = 5;
     }
   }
 

@@ -17,8 +17,9 @@
 
     <SeismogramDisplay
       @seisDisplayData={{sdd}}
-      @title={{concat (sdd-channel-codes sdd) ' ' sortFieldName '=' (format-number (get sdd sortField ) 2)}}
-      @overlayPicks=true>
+      @overlayPicks=true
+      @seismographConfig={{@seismographConfig}}
+       >
     </SeismogramDisplay>
   {{/each}}
 </div>
