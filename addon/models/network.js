@@ -10,17 +10,17 @@ export default class NetworkModel extends Model {
 
 
   get isActive() {
-    return ! this.get('endTime') || ! this.get('endTime').isBefore(moment.utc());
+    return ! this.endTime || ! this.endTime.isBefore(moment.utc());
   }
   get isTempNet() {
-    var first = this.get('networkCode').charAt(0);
+    var first = this.networkCode.charAt(0);
     return first === 'X' || first === 'Y' || first === 'Z';
   }
   get startYear() {
-      return this.get('startTime').toISOString().substring(0,4);
+      return this.startTime.toISOString().substring(0,4);
   }
   get startTimeUTC() {
-    var s = this.get('startTime');
+    var s = this.startTime;
     if(s === null) {
       return "";
     } else {
@@ -28,15 +28,15 @@ export default class NetworkModel extends Model {
     }
   }
   get endTimeUTC() {
-    if(this.get('endTime') === null) {
+    if(this.endTime === null) {
       return "";
     } else {
-      return this.get('endTime').toISOString();
+      return this.endTime.toISOString();
     }
   }
   activeAt(when) {
     if ( ! when) {when = moment.utc();}
-    return this.get('startTime').isBefore(when)
-      && ( ! this.get('endTime') || this.get('endTime').isAfter(when));
+    return this.startTime.isBefore(when)
+      && ( ! this.endTime || this.endTime.isAfter(when));
   }
 }

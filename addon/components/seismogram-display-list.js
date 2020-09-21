@@ -4,7 +4,13 @@ import EmberObject from '@ember/object';
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { sort } from '@ember/object/computed';
-import {d3, seismogram, seismographconfig, seismograph, displayorganize} from 'seisplotjs';
+import {
+  d3,
+  seismogram,
+  seismographconfig,
+  seismograph,
+  displayorganize
+} from 'seisplotjs';
 
 class SortFieldType {
   name = "name";

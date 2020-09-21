@@ -1,7 +1,12 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import RSVP from 'rsvp';
-import {d3, seismogram, seismographconfig, seismograph} from 'seisplotjs';
+import {
+  d3,
+  seismogram,
+  seismographconfig,
+  seismograph
+} from 'seisplotjs';
 
 export default class SeismogramDisplayComponent extends Component {
   graph = null;

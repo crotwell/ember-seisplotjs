@@ -26,30 +26,30 @@ export default class ChannelModel extends Model {
 
 
   get isActive() {
-    return ! this.get('endTime') || ! this.get('endTime').isBefore(moment.utc());
+    return ! this.endTime || ! this.endTime.isBefore(moment.utc());
   }
   get latitudeFormatted() {
-    return this.get('latitude').toFixed(2);
+    return this.latitude.toFixed(2);
   }
   get longitudeFormatted() {
-    return this.get('longitude').toFixed(2);
+    return this.longitude.toFixed(2);
   }
   get networkCode() {
-    return this.get('station').get('networkCode');
+    return this.station.get('networkCode');
   }
   get stationCode() {
-    return this.get('station').get('stationCode');
+    return this.station.get('stationCode');
   }
   get codes() {
-    return this.get('networkCode')
-      +"."+this.get('stationCode')
-      +"."+this.get('locationCode')
-      +"."+this.get('channelCode');
+    return this.networkCode
+      +"."+this.stationCode
+      +"."+this.locationCode
+      +"."+this.channelCode;
   }
 
   activeAt(when) {
     if ( ! when) {when = moment.utc();}
-    return this.get('startTime').isBefore(when)
-    && ( ! this.get('endTime') || this.get('endTime').isAfter(when));
+    return this.startTime.isBefore(when)
+    && ( ! this.endTime || this.endTime.isAfter(when));
    }
 }

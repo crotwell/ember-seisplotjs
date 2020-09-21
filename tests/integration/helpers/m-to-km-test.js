@@ -11,6 +11,6 @@ module('Integration | Helper | m-to-km', function(hooks) {
 
     await render(hbs`{{m-to-km inputValue}}`);
 
-    assert.equal(this.element.textContent.trim(), '12.345');
+    assert.dom(this.element).hasText('12.345');
   });
 });

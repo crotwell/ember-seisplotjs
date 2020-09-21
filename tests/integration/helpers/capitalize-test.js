@@ -11,6 +11,6 @@ module('Integration | Helper | capitalize', function(hooks) {
 
     await render(hbs`{{capitalize inputValue}}`);
 
-    assert.equal(this.element.textContent.trim(), 'Abc');
+    assert.dom(this.element).hasText('Abc');
   });
 });
