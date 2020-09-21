@@ -2,24 +2,53 @@
 
   <ShowHide @divTitle="Seismograph Tools">
     <div class="seisdisplaytools">
-      <span>Sort: </span>
-      {{#each sortTypes as |s|}}
-        <label for={{s.field}}>
-          <Input {{on "click" (fn this.sortBy s.field)}} @type="checkbox" name="sort" id={{s.field}} @checked={{eq sortField s.field}} />
-          <span>{{s.name}}</span>
-        </label>
-      {{/each}}
-
+      <div>
+        <span>Stations: </span>
+        {{#each stations as |s|}}
+          <label for={{s}}>
+            <Input {{on "click" (fn this.filterByStation s)}} @type="checkbox" name="filter" id={{s}} @checked={{fn this.isStation s}} />
+            <span>{{s}}</span>
+          </label>
+        {{/each}}
+      </div>
+      <div>
+        <span>Orientations: </span>
+        {{#each orientations as |o|}}
+          <label for={{o.code}}>
+            <Input {{on "click" (fn this.filterByComponent o)}} @type="checkbox" name="filter" id={{o.code}} @checked={{o.isSelected}} />
+            <span>{{o.code}}</span>
+          </label>
+        {{/each}}
+      </div>
+      <div>
+        <span>Sort: </span>
+        {{#each sortTypes as |s|}}
+          <label for={{s.field}}>
+            <Input {{on "click" (fn this.sortBy s.field)}} @type="checkbox" name="sort" id={{s.field}} @checked={{eq sortField s.field}} />
+            <span>{{s.name}}</span>
+          </label>
+        {{/each}}
+      </div>
+      <div>
+        <span>Organize: </span>
+        {{#each organizeTypes as |o|}}
+          <label for={{o.field}}>
+            <Input {{on "click" (fn this.organizeBy o.field)}} @type="checkbox" name="sort" id={{o.name}} @checked={{eq organizeDefinition o.name}} />
+            <span>{{o.name}}</span>
+          </label>
+        {{/each}}
+      </div>
     </div>
   </ShowHide>
-          {{yield}}
-  {{#each sortedSeisDisplayList as |sdd|}}
+<h5>Org len: {{organizedDisplayList.length}}</h5>
 
-    <SeismogramDisplay
-      @seisDisplayData={{sdd}}
-      @overlayPicks=true
-      @seismographConfig={{@seismographConfig}}
-       >
-    </SeismogramDisplay>
-  {{/each}}
+
+  {{#if (has-block)}}
+    {{yield (hash organizedDisplayList=organizedDisplayList )}}
+  {{else}}
+    {{#each organizedDisplayList as |org|}}
+      <h5>seisData: {{org.seisData.length}}  orient: {{orientSelected}}</h5>
+      <OrganizedDisplay @organized={{org}} />
+    {{/each}}
+  {{/if}}
 </div>
