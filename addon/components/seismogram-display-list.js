@@ -108,7 +108,7 @@ export default class SeismogramDisplayListComponent extends Component {
     console.log(`get stations: stations ${stationCodes.length}`)
     return stationCodes;
   }
-  
+
   isBand(code) {
     return this.selectedBands.includes( code );
   }
@@ -156,16 +156,17 @@ export default class SeismogramDisplayListComponent extends Component {
     const sddList = this.sortedSeisDisplayList;
     console.log(`organizedDisplayList  sddList: ${sddList.length}`)
     let orgList;
+    let toDisplayList = sddList.filter(sdd => this.isOrient(sdd.channelCode.charAt(2)))
+      .filter(sdd => this.isInstrument(sdd.channelCode.charAt(1)))
+      .filter(sdd => this.isBand(sdd.channelCode.charAt(0)))
+      .filter(sdd => this.isStation(sdd.stationCode));
     if (orgType) {
-      let toDisplayList = sddList.filter(sdd => this.isOrient(sdd.channelCode.charAt(2)))
-        .filter(sdd => this.isInstrument(sdd.channelCode.charAt(1)))
-        .filter(sdd => this.isBand(sdd.channelCode.charAt(0)))
-        .filter(sdd => this.isStation(sdd.stationCode));
       console.log(`filtered toDisplayList: ${toDisplayList.length}`)
       orgList = orgType.orgFunction(toDisplayList);
       orgList.forEach(org => org.seismographConfig = this.seismographConfig);
     } else {
-      orgList = displayorganize.individualDisplay(sddList);
+      console.log('default organize')
+      orgList = displayorganize.individualDisplay(toDisplayList);
     }
     orgList.forEach(org => org.seismographConfig = this.seismographConfig);
     console.log(`get organizedDisplayList  ${orgList.length}`)
@@ -237,7 +238,8 @@ export default class SeismogramDisplayListComponent extends Component {
   }
 
   @action organizeBy(key) {
-    this.organizeDefinition = key;
+    this.organizeDefinition = key.name;
+    console.log(`organizeBy  ${key.name} ot: ${this.organizeTypes.find(ot => ot.name === this.organizeDefinition)}`)
   }
 
   @action filterByComponent(oType) {

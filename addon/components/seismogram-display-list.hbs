@@ -30,8 +30,8 @@
       <div>
         <span>Organize: </span>
         {{#each organizeTypes as |o|}}
-          <label for={{o.field}}>
-            <Input {{on "click" (fn this.organizeBy o.field)}} @type="checkbox" name="sort" id={{o.name}} @checked={{eq organizeDefinition o.name}} />
+          <label for={{o.name}}>
+            <Input {{on "click" (fn this.organizeBy o)}} @type="checkbox" name="sort" id={{o.name}} @checked={{eq organizeDefinition o.name}} />
             <span>{{o.name}}</span>
           </label>
         {{/each}}
