@@ -4,21 +4,19 @@
     <div class="seisdisplaytools">
       <div>
         <span>Stations: </span>
-        {{#each stations as |s|}}
-          <label for={{s}}>
-            <Input {{on "click" (fn this.filterByStation s)}} @type="checkbox" name="filter" id={{s}} @checked={{fn this.isStation s}} />
-            <span>{{s}}</span>
-          </label>
-        {{/each}}
+        <CheckboxList @items={{stations}} @selected={{selectedStations}} @selectionChanged={{action this.handleStationSelected}} />
+      </div>
+      <div>
+        <span>Band: </span>
+        <CheckboxList @items={{bands}} @selected={{selectedBands}} @selectionChanged={{action this.handleBandSelected}} />
+      </div>
+      <div>
+        <span>Instruments: </span>
+        <CheckboxList @items={{instruments}} @selected={{selectedInstruments}} @selectionChanged={{action this.handleInstrumentSelected}} />
       </div>
       <div>
         <span>Orientations: </span>
-        {{#each orientations as |o|}}
-          <label for={{o.code}}>
-            <Input {{on "click" (fn this.filterByComponent o)}} @type="checkbox" name="filter" id={{o.code}} @checked={{o.isSelected}} />
-            <span>{{o.code}}</span>
-          </label>
-        {{/each}}
+        <CheckboxList @items={{orientations}} @selected={{selectedOrientations}} @selectionChanged={{action this.handleOrientationSelected}} />
       </div>
       <div>
         <span>Sort: </span>
@@ -47,7 +45,7 @@
     {{yield (hash organizedDisplayList=organizedDisplayList )}}
   {{else}}
     {{#each organizedDisplayList as |org|}}
-      <h5>seisData: {{org.seisData.length}}  orient: {{orientSelected}}</h5>
+      <h5>seisData: {{org.seisData.length}}  orient: {{selectedOrientations}}</h5>
       <OrganizedDisplay @organized={{org}} />
     {{/each}}
   {{/if}}

@@ -60,26 +60,44 @@ export default class SeismogramDisplayListComponent extends Component {
   @tracked seismographConfig;
   @tracked organizeDefinition = this.organizeTypes[0].name;
 
-  @tracked orientSelected = A([]);
-  @tracked stationSelected = A([]);
+  @tracked selectedBands = A([]);
+  @tracked selectedInstruments = A([]);
+  @tracked selectedOrientations = A([]);
+  @tracked selectedStations = A([]);
+
+  @action handleStationSelected(sel) {
+    console.log(`handleStationSelected ${sel.join(',')}`);
+    this.selectedStations = sel;
+  }
+    @action handleBandSelected(sel) {
+      console.log(`handleBandSelected ${sel.join(',')}`);
+      this.selectedBands = sel;
+    }
+  @action handleInstrumentSelected(sel) {
+    console.log(`handleInstrumentSelected ${sel.join(',')}`);
+    this.selectedInstruments = sel;
+  }
+  @action handleOrientationSelected(sel) {
+    console.log(`handleOrientSelected ${sel.join(',')}`);
+    this.selectedOrientations = sel;
+  }
+
+  get bands() {
+    let theSet = new Set();
+    this.args.seisDisplayList.forEach(sdd => theSet.add(sdd.channelCode.charAt(0)));
+    return A(Array.from(theSet.values()));
+  }
+
+  get instruments() {
+    let theSet = new Set();
+    this.args.seisDisplayList.forEach(sdd => theSet.add(sdd.channelCode.charAt(1)));
+    return A(Array.from(theSet.values()));
+  }
 
   get orientations() {
     let theSet = new Set();
     this.args.seisDisplayList.forEach(sdd => theSet.add(sdd.channelCode.charAt(2)));
-    let orientCodes = A(Array.from(theSet.values()));
-    let out =[];
-    orientCodes.forEach(code => {
-      let match = this.orientSelected.find(oSel => oSel.code === code);
-      if (match) {
-        out.push(match);
-      } else {
-        const oType =new OrientType({code: code, isSelected: false});
-        out.push(oType);
-        this.orientSelected.push(oType);
-      }
-    });
-    // maybe should remove from this.orientSelected if no longer in orientations?
-    return out;
+    return A(Array.from(theSet.values()));
   }
 
   get stations() {
@@ -90,15 +108,21 @@ export default class SeismogramDisplayListComponent extends Component {
     console.log(`get stations: stations ${stationCodes.length}`)
     return stationCodes;
   }
-
-  isOrient(code) {
-    const match = this.orientations.find(oType => oType.code === code);
-    console.log(`isOrient ${code}  ${this.orientSelected.includes( code )}  ${this.orientSelected.length}`)
-    return match.isSelected;
+  
+  isBand(code) {
+    return this.selectedBands.includes( code );
   }
 
-  isStation(s) {
-    return this.stationSelected.includes( s );
+  isInstrument(code) {
+    return this.selectedInstruments.includes( code );
+  }
+
+  isOrient(code) {
+    return this.selectedOrientations.includes( code );
+  }
+
+  isStation(code) {
+    return this.selectedStations.includes( code );
   }
 
   get sortDirection() {
@@ -134,6 +158,8 @@ export default class SeismogramDisplayListComponent extends Component {
     let orgList;
     if (orgType) {
       let toDisplayList = sddList.filter(sdd => this.isOrient(sdd.channelCode.charAt(2)))
+        .filter(sdd => this.isInstrument(sdd.channelCode.charAt(1)))
+        .filter(sdd => this.isBand(sdd.channelCode.charAt(0)))
         .filter(sdd => this.isStation(sdd.stationCode));
       console.log(`filtered toDisplayList: ${toDisplayList.length}`)
       orgList = orgType.orgFunction(toDisplayList);
@@ -168,16 +194,32 @@ export default class SeismogramDisplayListComponent extends Component {
       this.seismographConfig.wheelZoom = false;
       this.seismographConfig.margin.top = 5;
     }
-    // make sure at least one is selected, either Z or the first code
-    const orientCodes = this.orientations;
-    const zOrient = orientCodes.find(oType => oType.code === 'Z');
-    if (zOrient) {
-      zOrient.isSelected = true;
-    } else if (orientCodes.length > 0) {
-      orientCodes[0].isSelected = true;
+    // make sure at least one band is selected, either H or the first code
+    let codes = this.bands;
+    let defaultCode = codes.find(o => o === 'H');
+    if (defaultCode) {
+      this.selectedBands.push(defaultCode);
+    } else if (codes.length > 0) {
+      this.selectedBands.push(codes[0]);
     }
-    console.log(`seismogram-display-list ${this.args.seisDisplayList.length}`);
-    this.stationSelected = this.stations.slice();
+    // make sure at least one instrument is selected, either H or the first code
+    codes = this.instruments;
+    defaultCode = codes.find(o => o === 'H');
+    if (defaultCode) {
+      this.selectedInstruments.push(defaultCode);
+    } else if (codes.length > 0) {
+      this.selectedInstruments.push(codes[0]);
+    }
+    // make sure at least one band is selected, either H or the first code
+    codes = this.orientations;
+    defaultCode = codes.find(o => o === 'Z');
+    if (defaultCode) {
+      this.selectedOrientations.push(defaultCode);
+    } else if (codes.length > 0) {
+      this.selectedOrientations.push(codes[0]);
+    }
+    // default select all stations
+    this.stations.forEach(s => this.selectedStations.push(s));
   }
 
   @action sortBy(key) {
@@ -204,10 +246,10 @@ export default class SeismogramDisplayListComponent extends Component {
 
   @action filterByStation(s) {
     console.log(`fileter by station ${s}`);
-    if ( this.stationSelected.includes(s)) {
-      this.stationSelected.removeObject(s);
+    if ( this.selectedStations.includes(s)) {
+      this.selectedStations.removeObject(s);
     } else {
-      this.stationSelected.pushObject(s);
+      this.selectedStations.pushObject(s);
     }
   }
 }

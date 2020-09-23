@@ -1,0 +1,7 @@
+
+{{#each itemList as |item|}}
+  <label for={{item}}>
+    <Input @type="checkbox"  id={{item.label}} @checked={{item.isSelected}} {{on 'click' (fn this.check item)}}/>
+    <span>{{item.label}}</span>
+  </label>
+{{/each}}
