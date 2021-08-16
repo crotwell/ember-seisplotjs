@@ -1,6 +1,6 @@
 {
   "name": "ember-seisplotjs",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Easier use of seisplotjs in ember apps.",
   "keywords": [
     "ember-addon",
@@ -28,7 +28,7 @@
   "dependencies": {
     "ember-cli-babel": "^7.22.1",
     "ember-cli-htmlbars": "^5.3.1",
-    "seisplotjs": "^2.0.1"
+    "seisplotjs": "^2.1.0-alpha.0"
   },
   "devDependencies": {
     "@ember/optional-features": "^2.0.0",
