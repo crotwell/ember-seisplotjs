@@ -24,8 +24,11 @@ export default class FdsnEventAdapter extends Adapter {
     return query.query().then(quakeArray => {
       if (quakeArray.length == 1) {
         return quakeArray[0];
-      } else {
+      } else if (quakeArray.length == 0) {
+        // sometime usgs returns empty doc???
         throw new Error(`Query for eventId=${id} returned no quake.`);
+      } else {
+        throw new Error(`Query for eventId=${id} returned multiple quakes.`);
       }
     });
   }
