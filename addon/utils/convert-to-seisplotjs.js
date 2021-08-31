@@ -69,12 +69,46 @@ export function convertQuakeToSPjS(quake) {
   out.longitude = quake.longitude;
   out.depth = quake.depth;
   out.description = quake.description;
-  out.preferredMagnitude = quake.preferredMagnitude;
+  out.preferredMagnitude = convertMagnitudeToSPJS(quake.preferredMagnitude);
   out.preferredMagnitudeID = quake.preferredMagnitudeID;
-  out.preferredOrigin = quake.preferredOrigin;
-  out.magnitudeList = quake.magnitudeList;
-  out.originList = quake.originList;
-  out.arrivalList = quake.arrivalList;
-  out.pickList = quake.pickList;
+  out.preferredOrigin = convertOriginToSPJS(quake.preferredOrigin);
+  out.magnitudeList = quake.magnitudeList.map( convertMagnitudeToSPJS );
+  out.originList = quake.originList.map( convertOriginToSPJS );
+  out.arrivalList = quake.arrivalList.map( convertArrivalToSPJS );
+  out.pickList = quake.pickList.map( convertPickToSPJS );
+  return out;
+}
+
+export function convertMagnitudeToSPJS(mag) {
+  const out = new seisplotjs.quakeml.Magnitude(mag.get('mag'), mag.get('magType'));
+  out.publicId = mag.publicId;
+  return out;
+}
+
+export function convertOriginToSPJS(origin) {
+  console.log(`convertOriginToSPJS: ${origin.get('time').toISOString()}`)
+  const out = new seisplotjs.quakeml.Origin();
+  out.time = origin.get('time');
+  out.latitude = origin.get('latitude');
+  out.longitude = origin.get('longitude');
+  out.depth = origin.get('depth');
+  out.publicId = origin.get('publicId');
+  return out;
+}
+
+export function convertArrivalToSPJS(arrival) {
+  const pick = convertPickToSPJS(arrival.get('pick'));
+  const out = new seisplotjs.quakeml.Arrival(arrival.get('phase'), pick);
+  out.publicId = arrival.get('publicId');
+}
+
+export function convertPickToSPJS(pick) {
+  console.log(`convertPickToSPJS: ${pick.get('time')} ${pick.get('stationCode')} ${pick.get('publicId')}`);
+  const out = new seisplotjs.quakeml.Pick(pick.get('time'),
+                                          pick.get('networkCode'),
+                                          pick.get('stationCode'),
+                                          pick.get('locationCode'),
+                                          pick.get('channelCode'));
+  out.publicId = pick.get('publicId');
   return out;
 }
