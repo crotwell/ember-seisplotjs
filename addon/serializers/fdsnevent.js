@@ -41,7 +41,7 @@ export default class FdsnEventSerializer extends JSONAPISerializer {
     } else if (modelClass.modelName === "pick") {
       return this.normalizePick(resourceHash);
     } else if (modelClass.modelName === "arrival") {
-      return this.normalizePick(resourceHash);
+      return this.normalizeArrival(resourceHash);
     }
     throw new Error("fdsnevent serializer unknown type to normalize: "+resourceHash.id
       +" "+modelClass.modelName);
