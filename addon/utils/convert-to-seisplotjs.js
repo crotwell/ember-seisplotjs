@@ -7,12 +7,14 @@ export function convertToSeisplotjs(network, station, channel) {
     const net = convertNetworkToSPJS(network);
     const sta = convertStationToSPJS(station, net);
     sta.channels = station.channels.map(c => convertChannelToSPJS(c, sta));
+    return sta;
   } else {
     const net = convertNetworkToSPJS(network);
     net.stations = network.stations.map(s => {
       const sta = convertStationToSPJS(s, net);
       sta.channels = s.channels.map(c => convertChannelToSPJS(c, sta));
     });
+    return net;
   }
 }
 
@@ -93,13 +95,18 @@ export function convertOriginToSPJS(origin) {
   out.longitude = origin.get('longitude');
   out.depth = origin.get('depth');
   out.publicId = origin.get('publicId');
+  out.arrivalList = origin.get('arrivalList').map( convertArrivalToSPJS );
   return out;
 }
 
 export function convertArrivalToSPJS(arrival) {
   const pick = convertPickToSPJS(arrival.get('pick'));
   const out = new seisplotjs.quakeml.Arrival(arrival.get('phase'), pick);
+  if ( ! out.pick) {
+    throw new Error(`arrival.pick is undef!!! ${arrival}  ${pick}`);
+  }
   out.publicId = arrival.get('publicId');
+  return out;
 }
 
 export function convertPickToSPJS(pick) {
