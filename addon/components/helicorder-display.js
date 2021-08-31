@@ -13,7 +13,7 @@ export default class HelicorderDisplayComponent extends Component {
       div: div,
       seisData: this.args.helicorderData,
       amp: "none",
-      timeWindow: new seisplotjs.util.StartEndDuration(this.args.start, this.args.end)
+      timeWindow: new seisplotjs.util.StartEndDuration(this.args.start, this.args.end, this.args.duration)
     });
   }
 
