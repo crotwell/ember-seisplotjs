@@ -62,7 +62,7 @@ function convertNetworkToSPJS(network) {
   return out;
 }
 
-export function convertQuakeToSPjS(quake) {
+export function convertQuakeToSPJS(quake) {
   const out = new seisplotjs.quakeml.Quake();
   out.eventId = quake.eventId;
   out.publicId = quake.publicId;
@@ -88,7 +88,6 @@ export function convertMagnitudeToSPJS(mag) {
 }
 
 export function convertOriginToSPJS(origin) {
-  console.log(`convertOriginToSPJS: ${origin.get('time').toISOString()}`)
   const out = new seisplotjs.quakeml.Origin();
   out.time = origin.get('time');
   out.latitude = origin.get('latitude');
@@ -110,7 +109,6 @@ export function convertArrivalToSPJS(arrival) {
 }
 
 export function convertPickToSPJS(pick) {
-  console.log(`convertPickToSPJS: ${pick.get('time')} ${pick.get('stationCode')} ${pick.get('publicId')}`);
   const out = new seisplotjs.quakeml.Pick(pick.get('time'),
                                           pick.get('networkCode'),
                                           pick.get('stationCode'),
