@@ -1,5 +1,4 @@
 import Adapter from '@ember-data/adapter';
-import fdsnstationSerializer from '../serializers/fdsnstation';
 import seisplotjs from 'seisplotjs';
 import moment from 'moment';
 
